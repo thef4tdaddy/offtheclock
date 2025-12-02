@@ -3,14 +3,22 @@ from backend.app.database import SessionLocal, engine
 from backend.app import models
 from datetime import datetime
 
-def seed_data():
+import sys
+
+def seed_data(email=None):
     db = SessionLocal()
     
-    # Get the first user (assuming single user for now)
-    user = db.query(models.User).first()
+    if email:
+        user = db.query(models.User).filter(models.User.email == email).first()
+    else:
+        # Get the first user (fallback)
+        user = db.query(models.User).first()
+        
     if not user:
-        print("No user found! Please register a user first.")
+        print(f"No user found{' with email ' + email if email else ''}! Please register a user first.")
         return
+
+    print(f"Seeding data for user: {user.email}")
 
     # Clear existing categories for a clean slate
     db.query(models.PTOCategory).filter(models.PTOCategory.user_id == user.id).delete()
@@ -61,4 +69,5 @@ def seed_data():
     db.close()
 
 if __name__ == "__main__":
-    seed_data()
+    email_arg = sys.argv[1] if len(sys.argv) > 1 else None
+    seed_data(email_arg)

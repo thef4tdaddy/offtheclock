@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import LogModal from '../components/LogModal';
+import { formatHours } from '../utils/format';
 
 interface PTOLog {
   id: number;
@@ -10,24 +12,44 @@ interface PTOLog {
   note?: string;
 }
 
+interface PTOCategory {
+  id: number;
+  name: string;
+}
+
 const Calendar: React.FC = () => {
   const [logs, setLogs] = useState<PTOLog[]>([]);
+  const [categories, setCategories] = useState<PTOCategory[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
+  
+  // Modal State
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<string>('');
+
+  const fetchData = async () => {
+    try {
+      const [logsRes, catsRes] = await Promise.all([
+        axios.get('/api/pto/logs'),
+        axios.get('/api/pto/categories')
+      ]);
+      setLogs(logsRes.data);
+      setCategories(catsRes.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const res = await axios.get('/api/pto/logs');
-        setLogs(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLogs();
+    fetchData();
   }, []);
+
+  const handleDayClick = (dateStr: string) => {
+    setSelectedDate(dateStr);
+    setShowLogModal(true);
+  };
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -49,6 +71,19 @@ const Calendar: React.FC = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
+  const handleDeleteLog = async (e: React.MouseEvent, logId: number) => {
+    e.stopPropagation(); // Prevent opening the modal
+    if (!confirm('Are you sure you want to delete this log?')) return;
+
+    try {
+      await axios.delete(`/api/pto/logs/${logId}`);
+      fetchData(); // Refresh data
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete log');
+    }
+  };
+
   const renderCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
@@ -65,7 +100,11 @@ const Calendar: React.FC = () => {
       const dayLogs = logs.filter(log => log.date.startsWith(dateStr));
 
       days.push(
-        <div key={day} className="h-32 bg-white border border-gray-100 p-2 relative hover:bg-gray-50 transition-colors">
+        <div 
+          key={day} 
+          onClick={() => handleDayClick(dateStr)}
+          className="h-32 bg-white border border-gray-100 p-2 relative hover:bg-gray-50 transition-colors cursor-pointer group"
+        >
           <span className={`text-sm font-medium ${
             new Date().toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString() 
               ? 'bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center' 
@@ -78,16 +117,30 @@ const Calendar: React.FC = () => {
             {dayLogs.map(log => (
               <div 
                 key={log.id} 
-                className={`text-xs p-1 rounded px-2 truncate ${
+                className={`text-xs p-1 rounded px-2 truncate flex items-center justify-between group/log ${
                   log.amount < 0 
                     ? 'bg-red-100 text-red-700 border border-red-200' 
                     : 'bg-green-100 text-green-700 border border-green-200'
                 }`}
                 title={`${log.note || 'No note'} (${log.amount}h)`}
               >
-                {log.amount > 0 ? '+' : ''}{log.amount}h {log.note}
+                <span className="truncate mr-1">
+                  {log.amount > 0 ? '+' : ''}{formatHours(log.amount)} {log.note}
+                </span>
+                <button
+                  onClick={(e) => handleDeleteLog(e, log.id)}
+                  className="opacity-0 group-hover/log:opacity-100 hover:text-red-900 transition-opacity"
+                  title="Delete Log"
+                >
+                  ×
+                </button>
               </div>
             ))}
+          </div>
+          
+          {/* Hover indicator */}
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-xs text-primary font-medium">
+            + Log
           </div>
         </div>
       );
@@ -130,6 +183,14 @@ const Calendar: React.FC = () => {
           {renderCalendarDays()}
         </div>
       </div>
+
+      <LogModal 
+        isOpen={showLogModal} 
+        onClose={() => setShowLogModal(false)} 
+        onSuccess={fetchData}
+        initialDate={selectedDate}
+        categories={categories}
+      />
     </div>
   );
 };

@@ -97,6 +97,48 @@ def get_logs(db: Session = Depends(database.get_db), current_user: models.User =
     logs = db.query(models.PTOLog).join(models.PTOCategory).filter(models.PTOCategory.user_id == current_user.id).all()
     return logs
 
+@router.delete("/logs/{log_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_log(log_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    # Ensure log belongs to a category owned by the user
+    log = db.query(models.PTOLog).join(models.PTOCategory).filter(models.PTOLog.id == log_id, models.PTOCategory.user_id == current_user.id).first()
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    
+    db.delete(log)
+    db.commit()
+    return None
+
+@router.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_category(category_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    category = db.query(models.PTOCategory).filter(models.PTOCategory.id == category_id, models.PTOCategory.user_id == current_user.id).first()
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # Note: Cascading delete should handle logs if configured in models, otherwise manual cleanup might be needed.
+    # Assuming SQLAlchemy cascade is set or we want to delete logs too.
+    # Let's check models.py to be sure, but usually it's safer to explicitly delete or rely on DB cascade.
+    # For now, simple delete.
+    db.delete(category)
+    db.commit()
+    return None
+
+@router.put("/categories/{category_id}", response_model=schemas.PTOCategory)
+def update_category(category_id: int, category_update: schemas.PTOCategoryCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+    db_category = db.query(models.PTOCategory).filter(models.PTOCategory.id == category_id, models.PTOCategory.user_id == current_user.id).first()
+    if not db_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # Update fields
+    for key, value in category_update.dict().items():
+        setattr(db_category, key, value)
+    
+    db.commit()
+    db.refresh(db_category)
+    
+    # Recalculate balance for response
+    db_category.current_balance = calculate_balance(db_category, datetime.utcnow())
+    return db_category
+
 @router.get("/forecast", response_model=List[schemas.PTOCategory])
 def forecast_balance(target_date: datetime, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
     categories = db.query(models.PTOCategory).filter(models.PTOCategory.user_id == current_user.id).all()

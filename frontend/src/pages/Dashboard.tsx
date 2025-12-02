@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Forecast from '../components/Forecast';
+import LogModal from '../components/LogModal';
 import { Clock } from 'lucide-react';
+import { formatHours } from '../utils/format';
 
 interface PTOCategory {
   id: number;
@@ -45,7 +47,7 @@ const CircularProgress: React.FC<{ value: number; max?: number; label: string; s
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-3xl font-bold text-text-main">{value.toFixed(0)}</span>
+          <span className="text-3xl font-bold text-text-main">{formatHours(value)}</span>
           <span className="text-xs text-text-muted uppercase tracking-wider">{label}</span>
         </div>
       </div>
@@ -58,14 +60,7 @@ const Dashboard: React.FC = () => {
   const [categories, setCategories] = useState<PTOCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showLogModal, setShowLogModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   
-  // Log Form State
-  const [logAmount, setLogAmount] = useState('');
-  const [logDate, setLogDate] = useState(new Date().toISOString().split('T')[0]);
-  const [logNote, setLogNote] = useState('');
-  const [logType, setLogType] = useState<'usage' | 'adjustment'>('usage');
-
   const fetchCategories = async () => {
     try {
       const res = await axios.get('/api/pto/categories');
@@ -80,31 +75,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
-
-  const handleLogSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedCategory) return;
-
-    try {
-      const amount = parseFloat(logAmount);
-      const finalAmount = logType === 'usage' ? -amount : amount;
-
-      await axios.post('/api/pto/log', {
-        category_id: selectedCategory,
-        date: new Date(logDate).toISOString(),
-        amount: finalAmount,
-        note: logNote
-      });
-      setShowLogModal(false);
-      setLogAmount('');
-      setLogNote('');
-      setLogType('usage');
-      fetchCategories(); // Refresh balances
-    } catch (err) {
-      console.error(err);
-      alert('Failed to log activity');
-    }
-  };
 
   if (loading) return <div className="p-8">Loading...</div>;
 
@@ -135,11 +105,11 @@ const Dashboard: React.FC = () => {
             <CircularProgress 
               value={cat.current_balance} 
               max={cat.max_balance || 100} 
-              label="Hours"
+              label="Balance"
               subLabel={cat.name}
             />
             <div className="mt-4 text-xs text-text-muted text-center">
-              Accrues {cat.accrual_rate}h / {cat.accrual_frequency}
+              Accrues {formatHours(cat.accrual_rate)} / {cat.accrual_frequency}
             </div>
           </div>
         ))}
@@ -150,108 +120,12 @@ const Dashboard: React.FC = () => {
       <Forecast />
 
       {/* Modals */}
-      {showLogModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl">
-            <h2 className="text-2xl font-bold mb-6 text-text-main">Manage Balance</h2>
-            <form onSubmit={handleLogSubmit}>
-              <div className="space-y-4">
-                {/* Type Toggle */}
-                <div className="flex bg-gray-100 p-1 rounded-xl">
-                  <button
-                    type="button"
-                    onClick={() => setLogType('usage')}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-                      logType === 'usage' 
-                        ? 'bg-white text-primary shadow-sm' 
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    Use Hours
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLogType('adjustment')}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${
-                      logType === 'adjustment' 
-                        ? 'bg-white text-secondary shadow-sm' 
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    Add / Adjust
-                  </button>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">Category</label>
-                  <select 
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                    value={selectedCategory || ''}
-                    onChange={(e) => setSelectedCategory(Number(e.target.value))}
-                    required
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">Date</label>
-                  <input 
-                    type="date" 
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                    value={logDate}
-                    onChange={(e) => setLogDate(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">
-                    {logType === 'usage' ? 'Hours Used' : 'Hours to Add'}
-                  </label>
-                  <input 
-                    type="number" 
-                    step="0.5"
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                    value={logAmount}
-                    onChange={(e) => setLogAmount(e.target.value)}
-                    required
-                    placeholder="e.g. 8"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">Note</label>
-                  <input 
-                    type="text" 
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-                    value={logNote}
-                    onChange={(e) => setLogNote(e.target.value)}
-                    placeholder={logType === 'usage' ? "e.g. Doctor's appointment" : "e.g. Worked extra shift"}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 mt-8">
-                <button 
-                  type="button" 
-                  onClick={() => setShowLogModal(false)}
-                  className="px-6 py-3 text-text-muted hover:bg-gray-50 rounded-xl font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className={`px-6 py-3 text-white rounded-xl font-medium shadow-lg transition-all ${
-                    logType === 'usage' 
-                      ? 'bg-primary hover:bg-primary-dark shadow-cyan-100' 
-                      : 'bg-secondary hover:bg-secondary-dark shadow-orange-100'
-                  }`}
-                >
-                  {logType === 'usage' ? 'Log Time Off' : 'Add Hours'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <LogModal 
+        isOpen={showLogModal} 
+        onClose={() => setShowLogModal(false)} 
+        onSuccess={fetchCategories}
+        categories={categories}
+      />
 
     </div>
   );
