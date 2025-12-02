@@ -1,0 +1,11 @@
+# Frontend Checks
+cd frontend
+npm run typecheck
+npm run lint
+
+# Backend Checks
+cd ../
+source venv/bin/activate
+cd backend
+ruff check .
+mypy .

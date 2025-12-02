@@ -1,0 +1,59 @@
+from pydantic import BaseModel, EmailStr
+from typing import Optional, List
+from datetime import datetime
+from .models import UserRole, AccrualFrequency
+
+class UserBase(BaseModel):
+    email: EmailStr
+
+class UserCreate(UserBase):
+    password: str
+
+class User(UserBase):
+    id: int
+    role: UserRole
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class PTOLogBase(BaseModel):
+    date: datetime
+    amount: float
+    note: Optional[str] = None
+
+class PTOLogCreate(PTOLogBase):
+    category_id: int
+
+class PTOLog(PTOLogBase):
+    id: int
+    category_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class PTOCategoryBase(BaseModel):
+    name: str
+    accrual_rate: float
+    accrual_frequency: AccrualFrequency
+    max_balance: Optional[float] = None
+    start_date: datetime
+    starting_balance: float = 0.0
+
+class PTOCategoryCreate(PTOCategoryBase):
+    pass
+
+class PTOCategory(PTOCategoryBase):
+    id: int
+    user_id: int
+    # We will compute these fields dynamically in the response
+    current_balance: float 
+    projected_balance: Optional[float] = None
+
+    class Config:
+        from_attributes = True
+
+class BalanceProjection(BaseModel):
+    date: datetime
+    projected_balance: float
