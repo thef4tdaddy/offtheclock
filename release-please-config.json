@@ -1,0 +1,9 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "offtheclock",
+      "initial-version": "0.1.0"
+    }
+  }
+}
