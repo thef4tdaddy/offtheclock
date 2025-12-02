@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -64,14 +64,6 @@ const Login: React.FC = () => {
             Login
           </button>
         </form>
-        <div className="mt-4 text-center">
-          <p className="text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-blue-500 hover:text-blue-700 font-medium">
-              Register here
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
