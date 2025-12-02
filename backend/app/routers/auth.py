@@ -5,11 +5,11 @@ from datetime import timedelta
 from .. import models, schemas, security, database
 
 router = APIRouter(
-    prefix="/api/auth",
+    prefix="/auth",
     tags=["auth"],
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 @router.post("/register", response_model=schemas.User)
 def register_user(user: schemas.UserCreate, db: Session = Depends(database.get_db)):

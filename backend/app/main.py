@@ -31,6 +31,6 @@ app.add_middleware(
 def read_root():
     return {"message": "Welcome to Off The Clock API"}
 
-@app.get("/api/health")
+@app.get("/health")
 def health_check():
     return {"status": "ok"}

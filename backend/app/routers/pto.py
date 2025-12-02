@@ -6,7 +6,7 @@ from .. import models, schemas, database, security
 from fastapi.security import OAuth2PasswordBearer
 
 router = APIRouter(
-    prefix="/api/pto",
+    prefix="/pto",
     tags=["pto"],
 )
 
