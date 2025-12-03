@@ -1,5 +1,6 @@
-from backend.app.database import SessionLocal
-from backend.app import models
+
+from app.database import SessionLocal
+from app import models
 
 db = SessionLocal()
 users = db.query(models.User).all()

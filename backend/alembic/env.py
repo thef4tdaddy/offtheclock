@@ -12,7 +12,6 @@ from alembic import context
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.database import Base
-from app import models # Import models to register them with Base
 
 load_dotenv()
 
@@ -24,7 +23,7 @@ config = context.config
 database_url = os.getenv("DATABASE_URL")
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
-config.set_main_option("sqlalchemy.url", database_url)
+config.set_main_option("sqlalchemy.url", os.environ.get("DATABASE_URL")) # type: ignore
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

@@ -28,9 +28,9 @@ app.add_middleware(
 )
 
 @app.get("/")
-def read_root():
+def read_root() -> dict[str, str]:
     return {"message": "Welcome to Off The Clock API"}
 
 @app.get("/api/health")
-def health_check():
+def read_health() -> dict[str, str]:
     return {"status": "ok"}

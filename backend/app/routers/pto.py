@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime, timedelta
+from datetime import datetime
 from .. import models, schemas, database, security
 from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
 
 router = APIRouter(
     prefix="/api/pto",
@@ -12,7 +13,9 @@ router = APIRouter(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
+# ... imports ...
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)) -> models.User:
     # ... (Same auth logic as before, reusing for brevity if possible, but repeating for safety)
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -20,11 +23,11 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = security.jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
+        payload = jwt.decode(token, security.SECRET_KEY, algorithms=[security.ALGORITHM])
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
-    except security.JWTError:
+    except JWTError:
         raise credentials_exception
     user = db.query(models.User).filter(models.User.email == email).first()
     if user is None:
@@ -35,7 +38,7 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
     # 1. Calculate accrued time
     time_elapsed = target_date - category.start_date
     if time_elapsed.total_seconds() < 0:
-        return category.starting_balance
+        return category.starting_balance # type: ignore
 
     periods = 0
     if category.accrual_frequency == models.AccrualFrequency.WEEKLY:
@@ -56,12 +59,12 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
     total = category.starting_balance + accrued + usage
     
     if category.max_balance and total > category.max_balance:
-        return category.max_balance
+        return category.max_balance # type: ignore
     
-    return total
+    return float(total)
 
 @router.get("/categories", response_model=List[schemas.PTOCategory])
-def get_categories(db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def get_categories(db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> List[models.PTOCategory]:
     categories = db.query(models.PTOCategory).filter(models.PTOCategory.user_id == current_user.id).all()
     # Compute dynamic balance
     now = datetime.utcnow()
@@ -70,7 +73,7 @@ def get_categories(db: Session = Depends(database.get_db), current_user: models.
     return categories
 
 @router.post("/categories", response_model=schemas.PTOCategory)
-def create_category(category: schemas.PTOCategoryCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def create_category(category: schemas.PTOCategoryCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> models.PTOCategory:
     db_category = models.PTOCategory(**category.dict(), user_id=current_user.id)
     db.add(db_category)
     db.commit()
@@ -79,7 +82,7 @@ def create_category(category: schemas.PTOCategoryCreate, db: Session = Depends(d
     return db_category
 
 @router.post("/log", response_model=schemas.PTOLog)
-def log_usage(log: schemas.PTOLogCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def log_usage(log: schemas.PTOLogCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> models.PTOLog:
     # Verify category belongs to user
     category = db.query(models.PTOCategory).filter(models.PTOCategory.id == log.category_id, models.PTOCategory.user_id == current_user.id).first()
     if not category:
@@ -92,13 +95,13 @@ def log_usage(log: schemas.PTOLogCreate, db: Session = Depends(database.get_db),
     return db_log
 
 @router.get("/logs", response_model=List[schemas.PTOLog])
-def get_logs(db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def get_logs(db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> List[models.PTOLog]:
     # Join with Category to ensure we only get logs for categories belonging to the user
     logs = db.query(models.PTOLog).join(models.PTOCategory).filter(models.PTOCategory.user_id == current_user.id).all()
     return logs
 
 @router.delete("/logs/{log_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_log(log_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def delete_log(log_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> None:
     # Ensure log belongs to a category owned by the user
     log = db.query(models.PTOLog).join(models.PTOCategory).filter(models.PTOLog.id == log_id, models.PTOCategory.user_id == current_user.id).first()
     if not log:
@@ -109,7 +112,7 @@ def delete_log(log_id: int, db: Session = Depends(database.get_db), current_user
     return None
 
 @router.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_category(category_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def delete_category(category_id: int, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> None:
     category = db.query(models.PTOCategory).filter(models.PTOCategory.id == category_id, models.PTOCategory.user_id == current_user.id).first()
     if not category:
         raise HTTPException(status_code=404, detail="Category not found")
@@ -123,7 +126,7 @@ def delete_category(category_id: int, db: Session = Depends(database.get_db), cu
     return None
 
 @router.put("/categories/{category_id}", response_model=schemas.PTOCategory)
-def update_category(category_id: int, category_update: schemas.PTOCategoryCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def update_category(category_id: int, category_update: schemas.PTOCategoryCreate, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> models.PTOCategory:
     db_category = db.query(models.PTOCategory).filter(models.PTOCategory.id == category_id, models.PTOCategory.user_id == current_user.id).first()
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")
@@ -140,7 +143,7 @@ def update_category(category_id: int, category_update: schemas.PTOCategoryCreate
     return db_category
 
 @router.get("/forecast", response_model=List[schemas.PTOCategory])
-def forecast_balance(target_date: datetime, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)):
+def forecast_balance(target_date: datetime, db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> List[models.PTOCategory]:
     categories = db.query(models.PTOCategory).filter(models.PTOCategory.user_id == current_user.id).all()
     for cat in categories:
         # We reuse the same schema but populate current_balance with the projected value
@@ -153,7 +156,7 @@ def create_amazon_presets(
     request: schemas.AmazonPresetRequest,
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(get_current_user)
-):
+) -> dict[str, str]:
     # 1. UPT (Unpaid Time Off)
     # Rate: 5 mins per hour worked.
     # Weekly Accrual = (Shift Length * Shifts/Week * 5) / 60

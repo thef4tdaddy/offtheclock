@@ -33,6 +33,7 @@ const LogModal: React.FC<LogModalProps> = ({ isOpen, onClose, onSuccess, initial
         setCategoryId(categories[0].id.toString());
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialDate, categories]);
 
   const handleLogSubmit = async (e: React.FormEvent) => {

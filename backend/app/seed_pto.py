@@ -1,11 +1,11 @@
-from sqlalchemy.orm import Session
-from backend.app.database import SessionLocal, engine
-from backend.app import models
+from app.database import SessionLocal
+from app import models
 from datetime import datetime
+from typing import Optional
 
 import sys
 
-def seed_data(email=None):
+def seed_data(email: Optional[str] = None) -> None:
     db = SessionLocal()
     
     if email:

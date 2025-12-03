@@ -1,11 +1,11 @@
 import { QueryClient } from '@tanstack/react-query';
-
 import { get, set, del } from 'idb-keyval';
+import type { PersistedClient } from '@tanstack/react-query-persist-client';
 
 // Custom persister for IndexedDB using idb-keyval
 // This matches the Persister interface required by PersistQueryClientProvider
 export const idbPersister = {
-  persistClient: async (client: any) => {
+  persistClient: async (client: PersistedClient) => {
     await set('react-query-cache', client);
   },
   restoreClient: async () => {

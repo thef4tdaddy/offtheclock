@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum, Float
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
 from .database import Base
+from datetime import datetime
 
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
@@ -14,28 +15,28 @@ class AccrualFrequency(str, enum.Enum):
     MONTHLY = "monthly"
     ANNUALLY = "annually"
 
-class User(Base):
+class User(Base): # type: ignore
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+    role = Column(Enum(UserRole), default=UserRole.EMPLOYEE) # type: ignore
+    created_at = Column(DateTime, default=datetime.utcnow)
     full_name = Column(String, nullable=True)
     employer = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
-    role = Column(Enum(UserRole), default=UserRole.EMPLOYEE)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    pto_categories = relationship("PTOCategory", back_populates="user")
+    pto_categories = relationship("PTOCategory", back_populates="user", cascade="all, delete-orphan")
 
-class PTOCategory(Base):
+class PTOCategory(Base): # type: ignore
     __tablename__ = "pto_categories"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    name = Column(String) # e.g. "Vacation", "Sick"
-    accrual_rate = Column(Float) # Hours earned per period
-    accrual_frequency = Column(Enum(AccrualFrequency))
+    name = Column(String, index=True) # e.g. "Vacation", "Sick"
+    accrual_rate = Column(Float) # Hours per period
+    accrual_frequency = Column(Enum(AccrualFrequency), default=AccrualFrequency.WEEKLY) # type: ignore
     max_balance = Column(Float, nullable=True) # Cap
     start_date = Column(DateTime) # When accrual starts
     starting_balance = Column(Float, default=0.0)
@@ -43,7 +44,7 @@ class PTOCategory(Base):
     user = relationship("User", back_populates="pto_categories")
     logs = relationship("PTOLog", back_populates="category")
 
-class PTOLog(Base):
+class PTOLog(Base): # type: ignore
     __tablename__ = "pto_logs"
 
     id = Column(Integer, primary_key=True, index=True)
