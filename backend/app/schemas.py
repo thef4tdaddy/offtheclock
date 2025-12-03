@@ -5,6 +5,9 @@ from .models import UserRole, AccrualFrequency
 
 class UserBase(BaseModel):
     email: EmailStr
+    full_name: Optional[str] = None
+    employer: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 class UserCreate(UserBase):
     password: str

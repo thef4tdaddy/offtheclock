@@ -7,6 +7,9 @@ export const AccrualFrequencyEnum = z.enum(['daily', 'weekly', 'biweekly', 'mont
 // User Schemas
 export const UserBaseSchema = z.object({
   email: z.string().email(),
+  full_name: z.string().nullable().optional(),
+  employer: z.string().nullable().optional(),
+  avatar_url: z.string().nullable().optional(),
 });
 
 export const UserSchema = UserBaseSchema.extend({

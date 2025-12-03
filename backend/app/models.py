@@ -20,6 +20,9 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
+    full_name = Column(String, nullable=True)
+    employer = Column(String, nullable=True)
+    avatar_url = Column(String, nullable=True)
     role = Column(Enum(UserRole), default=UserRole.EMPLOYEE)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
