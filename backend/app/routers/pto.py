@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 from .. import models, schemas, database, security
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -35,33 +35,100 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     return user
 
 def calculate_balance(category: models.PTOCategory, target_date: datetime) -> float:
-    # 1. Calculate accrued time
-    time_elapsed = target_date - category.start_date
-    if time_elapsed.total_seconds() < 0:
-        return category.starting_balance # type: ignore
-
-    periods = 0
-    if category.accrual_frequency == models.AccrualFrequency.WEEKLY:
-        periods = time_elapsed.days / 7
-    elif category.accrual_frequency == models.AccrualFrequency.BIWEEKLY:
-        periods = time_elapsed.days / 14
-    elif category.accrual_frequency == models.AccrualFrequency.MONTHLY:
-        periods = time_elapsed.days / 30.44 # Approx
-    elif category.accrual_frequency == models.AccrualFrequency.ANNUALLY:
-        periods = time_elapsed.days / 365.25
-
-    accrued = int(periods) * category.accrual_rate
+    # Simulation approach to handle caps correctly (lost accrual shouldn't be recovered instantly after usage)
     
-    # 2. Sum logs (usage is negative)
-    # Note: In a real app, we'd filter logs by date <= target_date
-    usage = sum(log.amount for log in category.logs if log.date <= target_date)
+    current_date: datetime = category.start_date # type: ignore
+    balance: float = float(category.starting_balance)
+    
+    # Sort logs by date for processing
+    sorted_logs = sorted(category.logs, key=lambda x: x.date)
+    log_idx = 0
+    
+    # Determine step size based on frequency
+    # Note: We iterate daily for simplicity and correctness with caps/grants
+    # step = timedelta(days=0) 
+    # if category.accrual_frequency == models.AccrualFrequency.WEEKLY:
+    #     step = timedelta(days=1) 
+    # ... (removed unused logic)
+        
+    # Track yearly accrual for the cap
+    current_year = current_date.year
+    yearly_accrued = 0.0
+    
+    while current_date <= target_date:
+        # 1. Apply Usage/Adjustments for this day
+        # We process logs that happened ON this day (or up to this day if we skipped)
+        while log_idx < len(sorted_logs) and sorted_logs[log_idx].date.date() <= current_date.date():
+            # Apply log
+            balance += sorted_logs[log_idx].amount
+            log_idx += 1
+            
+        # 2. Apply Accrual
+        accrual_amount = 0.0
+        should_accrue = False
+        
+        # Check for Annual Grant (Jan 1st)
+        if category.annual_grant_amount > 0:
+            if current_date.month == 1 and current_date.day == 1:
+                # Only grant if it's not the start date (unless start date is Jan 1 and we want it? 
+                # Logic says "every Jan 1st". If start_date is Jan 1, we usually set starting_balance.
+                # Let's assume grants happen on Jan 1s strictly AFTER start_date to avoid double dipping with starting_balance.)
+                if current_date > category.start_date:
+                    balance += float(category.annual_grant_amount)
+                    # Annual grants usually don't count towards "accrual" caps, they are grants.
+        
+        # Check for Period Accrual
+        if category.accrual_frequency == models.AccrualFrequency.WEEKLY:
+            if current_date.weekday() == 6: # Sunday
+                should_accrue = True
+                accrual_amount = float(category.accrual_rate)
+                
+        elif category.accrual_frequency == models.AccrualFrequency.BIWEEKLY:
+            # Simple logic: every 14 days from start
+            delta = (current_date - category.start_date).days
+            if delta > 0 and delta % 14 == 0:
+                should_accrue = True
+                accrual_amount = float(category.accrual_rate)
+                
+        elif category.accrual_frequency == models.AccrualFrequency.MONTHLY:
+            # Accrue on 1st of month? or same day as start_date?
+            # Let's assume 1st of month for simplicity, or every 30 days.
+            # Standard is usually "pay period". Let's stick to 1st of month for now.
+            if current_date.day == 1 and current_date > category.start_date:
+                should_accrue = True
+                accrual_amount = float(category.accrual_rate)
+                
+        elif category.accrual_frequency == models.AccrualFrequency.ANNUALLY:
+             if current_date.month == 1 and current_date.day == 1 and current_date > category.start_date:
+                should_accrue = True
+                accrual_amount = float(category.accrual_rate)
 
-    total = category.starting_balance + accrued + usage
-    
-    if category.max_balance and total > category.max_balance:
-        return category.max_balance # type: ignore
-    
-    return float(total)
+        # Apply Yearly Cap Logic
+        if should_accrue:
+            # Reset yearly counter if new year
+            if current_date.year != current_year:
+                current_year = current_date.year
+                yearly_accrued = 0.0
+            
+            # Check if we can accrue more this year
+            if category.yearly_accrual_cap:
+                remaining_cap = float(category.yearly_accrual_cap) - yearly_accrued
+                if remaining_cap > 0:
+                    amount_to_add = min(accrual_amount, remaining_cap)
+                    balance += amount_to_add
+                    yearly_accrued += amount_to_add
+            else:
+                balance += accrual_amount
+                
+        # 3. Apply Max Balance Cap
+        if category.max_balance and balance > category.max_balance:
+            balance = float(category.max_balance)
+            
+        # Advance time
+        # Optimization: For weekly, we could jump to next Sunday or next log, but daily is safest for "Jan 1st" checks etc.
+        current_date += timedelta(days=1)
+        
+    return float(balance)
 
 @router.get("/categories", response_model=List[schemas.PTOCategory])
 def get_categories(db: Session = Depends(database.get_db), current_user: models.User = Depends(get_current_user)) -> List[models.PTOCategory]:
@@ -183,6 +250,8 @@ def create_amazon_presets(
         accrual_rate=1.85,
         accrual_frequency=models.AccrualFrequency.WEEKLY,
         max_balance=48.0,
+        yearly_accrual_cap=38.0,
+        annual_grant_amount=10.0,
         start_date=datetime.utcnow(),
         starting_balance=request.current_flex if request.current_flex is not None else 10.0
     )

@@ -38,6 +38,8 @@ class PTOCategory(Base): # type: ignore
     accrual_rate = Column(Float) # Hours per period
     accrual_frequency = Column(Enum(AccrualFrequency), default=AccrualFrequency.WEEKLY) # type: ignore
     max_balance = Column(Float, nullable=True) # Cap
+    yearly_accrual_cap = Column(Float, nullable=True) # Cap on accrued hours per calendar year
+    annual_grant_amount = Column(Float, default=0.0) # Fixed amount granted annually (e.g. on Jan 1st)
     start_date = Column(DateTime) # When accrual starts
     starting_balance = Column(Float, default=0.0)
     

@@ -46,6 +46,8 @@ class PTOCategoryBase(BaseModel):
     accrual_rate: float
     accrual_frequency: AccrualFrequency
     max_balance: Optional[float] = None
+    yearly_accrual_cap: Optional[float] = None
+    annual_grant_amount: float = 0.0
     start_date: datetime
     starting_balance: float = 0.0
 
