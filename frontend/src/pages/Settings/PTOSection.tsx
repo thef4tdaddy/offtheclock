@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
-import { formatHours, parseDuration } from '../utils/format';
+import { formatHours, parseDuration } from '../../utils/format';
 
 interface PTOCategory {
   id: number;
@@ -13,7 +13,7 @@ interface PTOCategory {
   starting_balance: number;
 }
 
-const Settings: React.FC = () => {
+const PTOSection: React.FC = () => {
   const [categories, setCategories] = useState<PTOCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -95,8 +95,8 @@ const Settings: React.FC = () => {
     setNewCatInitial(formatHours(cat.starting_balance));
     setNewCatMax(cat.max_balance ? formatHours(cat.max_balance) : '');
     
-    // Scroll to form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll to form (optional, might need adjustment in new layout)
+    // window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (id: number) => {
@@ -121,9 +121,7 @@ const Settings: React.FC = () => {
   if (loading) return <div className="p-8">Loading...</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <h1 className="text-3xl font-bold text-text-main">Settings</h1>
-
+    <div className="space-y-8">
       {/* Create/Edit Category Section */}
       <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
         <h2 className="text-xl font-bold mb-6 text-text-main flex items-center gap-2">
@@ -268,4 +266,4 @@ const Settings: React.FC = () => {
   );
 };
 
-export default Settings;
+export default PTOSection;

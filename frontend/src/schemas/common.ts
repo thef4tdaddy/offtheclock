@@ -12,6 +12,8 @@ export const UserBaseSchema = z.object({
   avatar_url: z.string().nullable().optional(),
 });
 
+export const UserUpdateSchema = UserBaseSchema.partial();
+
 export const UserSchema = UserBaseSchema.extend({
   id: z.number(),
   role: UserRoleEnum,

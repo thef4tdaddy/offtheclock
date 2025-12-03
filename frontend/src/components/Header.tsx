@@ -15,6 +15,9 @@ const Header: React.FC = () => {
     avatarUrl: null, // Placeholder for avatar URL
   };
 
+  // TODO: Implement Low UPT Warning (Issue #6)
+  // Logic: Check if UPT category balance < 0 and display warning icon/banner
+  
   return (
     <header className="flex justify-between items-center h-20 px-8 bg-dark-blue text-white shadow-md shrink-0 z-10">
       <div>

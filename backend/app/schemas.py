@@ -12,6 +12,11 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    employer: Optional[str] = None
+    avatar_url: Optional[str] = None
+
 class User(UserBase):
     id: int
     role: UserRole
@@ -60,3 +65,11 @@ class PTOCategory(PTOCategoryBase):
 class BalanceProjection(BaseModel):
     date: datetime
     projected_balance: float
+
+class AmazonPresetRequest(BaseModel):
+    tenure_years: int = 0
+    shift_length: float = 10.0
+    shifts_per_week: int = 4
+    current_upt: Optional[float] = None
+    current_flex: Optional[float] = None
+    current_std: Optional[float] = None

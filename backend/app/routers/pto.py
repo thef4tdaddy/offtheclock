@@ -147,3 +147,82 @@ def forecast_balance(target_date: datetime, db: Session = Depends(database.get_d
         # Ideally we'd use a separate schema or field, but for simplicity:
         cat.current_balance = calculate_balance(cat, target_date)
     return categories
+
+@router.post("/presets/amazon", status_code=status.HTTP_201_CREATED)
+def create_amazon_presets(
+    request: schemas.AmazonPresetRequest,
+    db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # 1. UPT (Unpaid Time Off)
+    # Rate: 5 mins per hour worked.
+    # Weekly Accrual = (Shift Length * Shifts/Week * 5) / 60
+    upt_weekly_hours = (request.shift_length * request.shifts_per_week * 5) / 60
+    
+    upt = models.PTOCategory(
+        user_id=current_user.id,
+        name="UPT (Unpaid Time)",
+        accrual_rate=round(upt_weekly_hours, 3),
+        accrual_frequency=models.AccrualFrequency.WEEKLY,
+        max_balance=80.0,
+        start_date=datetime.utcnow(),
+        starting_balance=request.current_upt if request.current_upt is not None else 0.0
+    )
+
+    # 2. Flexible PTO
+    # Rule: 1.85 hours per week. Cap 48 hours.
+    # Policy: 10 hours granted every Jan 1st. New employees get this 10h grant immediately upon start.
+    # Implementation: We set starting_balance to current_flex (if provided) or 10.0 (default grant).
+    # TODO: Automate the recurring Jan 1st grant (currently requires manual adjustment or new logic).
+    flex = models.PTOCategory(
+        user_id=current_user.id,
+        name="Flexible PTO",
+        accrual_rate=1.85,
+        accrual_frequency=models.AccrualFrequency.WEEKLY,
+        max_balance=48.0,
+        start_date=datetime.utcnow(),
+        starting_balance=request.current_flex if request.current_flex is not None else 10.0
+    )
+
+    # 3. Standard PTO
+    # Rate & Cap based on tenure
+    tenure = request.tenure_years
+    std_rate = 0.0
+    std_cap = 0.0
+
+    if tenure < 1:
+        std_rate = 0.77
+        std_cap = 40.0
+    elif tenure == 1:
+        std_rate = 1.54
+        std_cap = 80.0
+    elif tenure == 2:
+        std_rate = 1.70
+        std_cap = 88.0
+    elif tenure == 3:
+        std_rate = 1.85
+        std_cap = 96.0
+    elif tenure == 4:
+        std_rate = 2.00
+        std_cap = 104.0
+    elif tenure == 5:
+        std_rate = 2.16
+        std_cap = 112.0
+    else: # 6+ years
+        std_rate = 2.31
+        std_cap = 120.0
+
+    std = models.PTOCategory(
+        user_id=current_user.id,
+        name="Standard PTO",
+        accrual_rate=std_rate,
+        accrual_frequency=models.AccrualFrequency.WEEKLY,
+        max_balance=std_cap,
+        start_date=datetime.utcnow(),
+        starting_balance=request.current_std if request.current_std is not None else 0.0
+    )
+    
+    db.add_all([upt, flex, std])
+    db.commit()
+    
+    return {"message": "Amazon PTO presets created successfully"}
