@@ -12,11 +12,16 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.11",
+    "@tanstack/react-query-devtools": "^5.91.1",
+    "@tanstack/react-query-persist-client": "^5.90.13",
     "axios": "^1.13.2",
+    "idb-keyval": "^6.2.2",
     "lucide-react": "^0.555.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.10.0"
+    "react-router-dom": "^7.10.0",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
