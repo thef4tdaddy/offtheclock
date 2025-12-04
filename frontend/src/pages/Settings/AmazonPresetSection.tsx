@@ -3,13 +3,49 @@ import axios from 'axios';
 import { Package, CheckCircle, AlertTriangle } from 'lucide-react';
 
 const AmazonPresetSection: React.FC = () => {
-  const [tenure, setTenure] = useState(0);
-  const [shiftLength, setShiftLength] = useState(10);
-  const [shiftsPerWeek, setShiftsPerWeek] = useState(4);
+  // Use strings for inputs to allow empty state and better typing experience
+  const [tenure, setTenure] = useState('0');
+  const [shiftLength, setShiftLength] = useState('10');
+  const [shiftsPerWeek, setShiftsPerWeek] = useState('4');
+  
+  // Balances can be "5h22m" or numbers
   const [currentUpt, setCurrentUpt] = useState('');
   const [currentFlex, setCurrentFlex] = useState('');
   const [currentStd, setCurrentStd] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Helper to parse "5h22m", "5.5", "5:30" etc into decimal hours
+  const parseDuration = (input: string): number | undefined => {
+    if (!input || input.trim() === '') return undefined;
+    
+    const text = input.toLowerCase().trim();
+    
+    // Try "5h 22m" or "5h22m" format
+    if (text.includes('h') || text.includes('m')) {
+      let hours = 0;
+      let minutes = 0;
+      
+      const hMatch = text.match(/(\d+(\.\d+)?)h/);
+      if (hMatch) hours = parseFloat(hMatch[1]);
+      
+      const mMatch = text.match(/(\d+(\.\d+)?)m/);
+      if (mMatch) minutes = parseFloat(mMatch[1]);
+      
+      return hours + (minutes / 60);
+    }
+    
+    // Try "5:30" format
+    if (text.includes(':')) {
+      const parts = text.split(':');
+      const hours = parseFloat(parts[0]);
+      const minutes = parseFloat(parts[1] || '0');
+      return hours + (minutes / 60);
+    }
+    
+    // Default to simple number
+    const num = parseFloat(text);
+    return isNaN(num) ? undefined : num;
+  };
 
   const handleLoadPresets = async () => {
     if (!confirm('This will add Amazon default PTO categories to your account. Continue?')) return;
@@ -17,12 +53,12 @@ const AmazonPresetSection: React.FC = () => {
     setLoading(true);
     try {
       await axios.post('/api/pto/presets/amazon', {
-        tenure_years: Number(tenure),
-        shift_length: Number(shiftLength),
-        shifts_per_week: Number(shiftsPerWeek),
-        current_upt: currentUpt ? Number(currentUpt) : undefined,
-        current_flex: currentFlex ? Number(currentFlex) : undefined,
-        current_std: currentStd ? Number(currentStd) : undefined
+        tenure_years: parseFloat(tenure) || 0,
+        shift_length: parseFloat(shiftLength) || 0,
+        shifts_per_week: parseFloat(shiftsPerWeek) || 0,
+        current_upt: parseDuration(currentUpt),
+        current_flex: parseDuration(currentFlex),
+        current_std: parseDuration(currentStd)
       });
       alert('Amazon PTO presets loaded successfully!');
       // Reload to show new categories
@@ -66,7 +102,7 @@ const AmazonPresetSection: React.FC = () => {
             max="50"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
             value={tenure}
-            onChange={(e) => setTenure(Number(e.target.value))}
+            onChange={(e) => setTenure(e.target.value)}
           />
           <p className="text-xs text-text-muted mt-1">Determines Vacation accrual rate.</p>
         </div>
@@ -79,7 +115,7 @@ const AmazonPresetSection: React.FC = () => {
             step="0.5"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
             value={shiftLength}
-            onChange={(e) => setShiftLength(Number(e.target.value))}
+            onChange={(e) => setShiftLength(e.target.value)}
           />
           <p className="text-xs text-text-muted mt-1">Used for UPT calculation.</p>
         </div>
@@ -91,7 +127,7 @@ const AmazonPresetSection: React.FC = () => {
             max="7"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
             value={shiftsPerWeek}
-            onChange={(e) => setShiftsPerWeek(Number(e.target.value))}
+            onChange={(e) => setShiftsPerWeek(e.target.value)}
           />
         </div>
         
@@ -99,9 +135,8 @@ const AmazonPresetSection: React.FC = () => {
         <div>
           <label className="block text-sm font-medium text-text-muted mb-1">Current UPT Balance</label>
           <input 
-            type="number" 
-            step="0.1"
-            placeholder="Optional (e.g. 10)"
+            type="text" 
+            placeholder="e.g. 10 or 5h22m"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
             value={currentUpt}
             onChange={(e) => setCurrentUpt(e.target.value)}
@@ -110,9 +145,8 @@ const AmazonPresetSection: React.FC = () => {
         <div>
           <label className="block text-sm font-medium text-text-muted mb-1">Current Flex Balance</label>
           <input 
-            type="number" 
-            step="0.1"
-            placeholder="Optional (e.g. 10)"
+            type="text" 
+            placeholder="e.g. 10 or 5h22m"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
             value={currentFlex}
             onChange={(e) => setCurrentFlex(e.target.value)}
@@ -121,9 +155,8 @@ const AmazonPresetSection: React.FC = () => {
         <div>
           <label className="block text-sm font-medium text-text-muted mb-1">Current Vacation Balance</label>
           <input 
-            type="number" 
-            step="0.1"
-            placeholder="Optional (e.g. 40)"
+            type="text" 
+            placeholder="e.g. 40 or 5h22m"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
             value={currentStd}
             onChange={(e) => setCurrentStd(e.target.value)}
