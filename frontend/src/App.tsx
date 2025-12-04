@@ -4,6 +4,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
 import Calendar from './pages/Calendar';
+import HistoryPage from './pages/History/HistoryPage';
+import ProjectionsPage from './pages/Projections/ProjectionsPage';
 import './App.css';
 
 import Layout from './components/Layout';
@@ -48,6 +50,26 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <Calendar />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <HistoryPage />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projections"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <ProjectionsPage />
                 </Layout>
               </ProtectedRoute>
             }

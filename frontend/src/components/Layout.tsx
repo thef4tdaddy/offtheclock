@@ -6,7 +6,8 @@ import {
   Clock, 
   Settings, 
   LogOut, 
-  Menu
+  Menu,
+  TrendingUp
 } from 'lucide-react';
 import Header from './Header';
 
@@ -38,9 +39,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <Calendar size={20} />
             <span className="font-medium">Calendar</span>
           </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+          <a href="/history" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
             <Clock size={20} />
-            <span className="font-medium">Requests</span>
+            <span className="font-medium">History</span>
+          </a>
+          <a href="/projections" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
+            <TrendingUp size={20} />
+            <span className="font-medium">Projections</span>
           </a>
           <a href="/settings" className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors">
             <Settings size={20} />
