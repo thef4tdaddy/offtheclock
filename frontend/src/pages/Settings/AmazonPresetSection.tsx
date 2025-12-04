@@ -87,7 +87,7 @@ const AmazonPresetSection: React.FC = () => {
           </p>
           <ul className="text-sm text-orange-700 list-disc list-inside mt-1 ml-1 space-y-1">
             <li><strong>UPT</strong>: 80h Cap (Calculated based on your shift)</li>
-            <li><strong>Flexible PTO</strong>: 48h Cap, 1.85h/week</li>
+            <li><strong>Flex PTO</strong>: 48h Cap, 1.85h/week</li>
             <li><strong>Standard PTO</strong>: Accrual based on your tenure</li>
           </ul>
         </div>

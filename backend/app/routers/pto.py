@@ -231,7 +231,7 @@ def create_amazon_presets(
     
     upt = models.PTOCategory(
         user_id=current_user.id,
-        name="UPT (Unpaid Time)",
+        name="UPT",
         accrual_rate=round(upt_weekly_hours, 3),
         accrual_frequency=models.AccrualFrequency.WEEKLY,
         max_balance=80.0,
@@ -246,7 +246,7 @@ def create_amazon_presets(
     # TODO: Automate the recurring Jan 1st grant (currently requires manual adjustment or new logic).
     flex = models.PTOCategory(
         user_id=current_user.id,
-        name="Flexible PTO",
+        name="Flex PTO",
         accrual_rate=1.85,
         accrual_frequency=models.AccrualFrequency.WEEKLY,
         max_balance=48.0,
