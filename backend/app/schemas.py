@@ -55,13 +55,13 @@ class PTOLog(PTOLogBase):
 
 class PTOCategoryBase(BaseModel):
     name: str
-    accrual_rate: float
-    accrual_frequency: AccrualFrequency
+    accrual_rate: Optional[float] = 0.0
+    accrual_frequency: Optional[AccrualFrequency] = None
     max_balance: Optional[float] = None
     yearly_accrual_cap: Optional[float] = None
     accrued_ytd: float = 0.0
     annual_grant_amount: float = 0.0
-    start_date: datetime
+    start_date: Optional[datetime] = None
     starting_balance: float = 0.0
 
 
