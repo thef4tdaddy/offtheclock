@@ -35,7 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-6 flex items-center justify-center h-20">
           <img
             src={
-              isCollapsed ? '/images/logo-icon-only.svg' : '/images/OffTheClock-Logo-With-Text.svg'
+              isCollapsed ? '/images/logo-icon-only.ico' : '/images/OffTheClock-Logo-With-Text.svg'
             }
             alt="OffTheClock"
             className={`${isCollapsed ? 'h-8' : 'h-12'} w-auto transition-all`}
