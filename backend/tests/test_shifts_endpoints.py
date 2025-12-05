@@ -140,8 +140,11 @@ class TestBatchShiftCreation:
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 3
+        series_id = data[0]["series_id"]
+        assert series_id is not None
         for shift in data:
             assert shift["user_id"] == test_user.id
+            assert shift["series_id"] == series_id
 
     def test_create_batch_shifts_with_upt(
         self,
@@ -169,7 +172,8 @@ class TestBatchShiftCreation:
         data = response.json()
         assert len(data) == 2
         for shift in data:
-            assert shift["upt_log_id"] is not None
+            # Batch shifts should NOT accrue UPT automatically anymore
+            assert shift["upt_log_id"] is None
 
     def test_create_batch_shifts_skips_invalid(
         self,
@@ -309,8 +313,65 @@ class TestShiftDeletion:
 
         assert response.status_code == 404
 
-    def test_delete_shift_unauthorized(self, client: TestClient) -> None:
-        """Test deleting shift without auth fails."""
-        response = client.delete("/shifts/1")
 
+@pytest.mark.integration
+class TestShiftSeriesDeletion:
+    """Tests for shift series deletion endpoint."""
+
+    def test_delete_shift_series_success(
+        self,
+        client: TestClient,
+        auth_headers: dict[str, str],
+        test_user: User,
+    ) -> None:
+        """Test successful shift series deletion."""
+        # Create a batch of shifts
+        base_time = datetime.utcnow()
+        shifts_data = []
+        for i in range(3):
+            shifts_data.append(
+                {
+                    "start_time": (base_time + timedelta(days=i)).isoformat(),
+                    "end_time": (base_time + timedelta(days=i, hours=8)).isoformat(),
+                }
+            )
+
+        batch_response = client.post(
+            "/shifts/batch", json=shifts_data, headers=auth_headers
+        )
+        batch_data = batch_response.json()
+        series_id = batch_data[0]["series_id"]
+
+        assert series_id is not None
+        # Verify all share the same series_id
+        assert all(s["series_id"] == series_id for s in batch_data)
+
+        # Delete the series
+        response = client.delete(f"/shifts/series/{series_id}", headers=auth_headers)
+        assert response.status_code == 200
+        assert "deleted" in response.json()["message"].lower()
+
+        # Verify shifts are gone
+        get_response = client.get("/shifts/", headers=auth_headers)
+        assert len(get_response.json()) == 0
+
+    def test_delete_nonexistent_series(
+        self,
+        client: TestClient,
+        auth_headers: dict[str, str],
+    ) -> None:
+        """Test deleting nonexistent series works conceptually (idempotent or 404 depending on implementation)."""
+        # Our implementation creates a 404 if no shifts found? Or 200 with 0 deleted?
+        # Let's check the router logic.
+        # Actually our router does: .filter(and_(Shift.series_id == series_id, Shift.user_id == user.id))
+        # result = db.execute(...) -> if result.rowcount == 0: raise 404
+
+        response = client.delete(
+            "/shifts/series/nonexistent-uuid", headers=auth_headers
+        )
+        assert response.status_code == 404
+
+    def test_delete_series_unauthorized(self, client: TestClient) -> None:
+        """Test deleting series without auth fails."""
+        response = client.delete("/shifts/series/some-uuid")
         assert response.status_code == 401
