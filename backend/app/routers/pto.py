@@ -6,40 +6,12 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-from .. import database, models, schemas, security
+from .. import database, dependencies, models, schemas, security
 
 router = APIRouter(
     prefix="/api/pto",
     tags=["pto"],
 )
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
-
-# ... imports ...
-
-
-def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)
-) -> models.User:
-    # ... (Same auth logic as before, reusing for brevity if possible, but repeating for safety)
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(
-            token, security.SECRET_KEY, algorithms=[security.ALGORITHM]
-        )
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    user = db.query(models.User).filter(models.User.email == email).first()
-    if user is None:
-        raise credentials_exception
-    return user
 
 
 def calculate_balance(category: models.PTOCategory, target_date: datetime) -> float:
@@ -165,7 +137,7 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
 @router.get("/categories", response_model=List[schemas.PTOCategory])
 def get_categories(
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> List[models.PTOCategory]:
     categories = (
         db.query(models.PTOCategory)
@@ -183,7 +155,7 @@ def get_categories(
 def create_category(
     category: schemas.PTOCategoryCreate,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> models.PTOCategory:
     db_category = models.PTOCategory(**category.dict(), user_id=current_user.id)
     db.add(db_category)
@@ -197,7 +169,7 @@ def create_category(
 def log_usage(
     log: schemas.PTOLogCreate,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> models.PTOLog:
     # Verify category belongs to user
     category = (
@@ -221,7 +193,7 @@ def log_usage(
 @router.get("/logs", response_model=List[schemas.PTOLog])
 def get_logs(
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> List[models.PTOLog]:
     # Join with Category to ensure we only get logs for categories belonging to the user
     logs = (
@@ -237,7 +209,7 @@ def get_logs(
 def delete_log(
     log_id: int,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> None:
     # Ensure log belongs to a category owned by the user
     log = (
@@ -260,7 +232,7 @@ def delete_log(
 def delete_category(
     category_id: int,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> None:
     category = (
         db.query(models.PTOCategory)
@@ -287,7 +259,7 @@ def update_category(
     category_id: int,
     category_update: schemas.PTOCategoryCreate,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> models.PTOCategory:
     db_category = (
         db.query(models.PTOCategory)
@@ -316,7 +288,7 @@ def update_category(
 def forecast_balance(
     target_date: datetime,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> List[models.PTOCategory]:
     categories = (
         db.query(models.PTOCategory)
@@ -334,7 +306,7 @@ def forecast_balance(
 def create_amazon_presets(
     request: schemas.AmazonPresetRequest,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> dict[str, str]:
     # 1. UPT (Unpaid Time Off)
     # Rate: 5 mins per hour worked.

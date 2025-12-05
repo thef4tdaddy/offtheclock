@@ -1,4 +1,4 @@
 {
   "src/**/*.{ts,tsx}": ["prettier --write", "eslint --fix"],
-  "../backend/**/*.py": ["black", "isort"]
+  "../backend/**/*.py": ["../backend/venv/bin/black", "../backend/venv/bin/isort"]
 }
