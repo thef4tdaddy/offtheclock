@@ -30,25 +30,25 @@ const Header: React.FC = () => {
   const avatarUrl = profile?.avatar_url;
 
   return (
-    <header className="flex justify-between items-center h-20 px-8 bg-dark-blue text-white shadow-md shrink-0 z-10">
-      <div>
-        <h1 className="text-xl font-bold">Welcome back, {displayName}</h1>
+    <header className="flex justify-between items-center h-16 md:h-20 px-4 md:px-8 bg-dark-blue text-white shadow-md shrink-0 z-10">
+      <div className="flex-1 min-w-0 mr-4">
+        <h1 className="text-lg md:text-xl font-bold truncate">Welcome back, {displayName}</h1>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 shrink-0">
         <button className="p-2 text-gray-400 hover:text-white transition-colors relative">
           <Bell size={20} />
           <span className="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
         </button>
         <div className="flex items-center gap-3 pl-4 border-l border-gray-700 relative">
           <div className="text-right hidden sm:block">
-            <div className="text-sm font-semibold text-white">{displayName}</div>
-            <div className="text-xs text-gray-400">{displayEmployer}</div>
+            <div className="text-sm font-semibold text-white truncate max-w-[150px]">{displayName}</div>
+            <div className="text-xs text-gray-400 truncate max-w-[150px]">{displayEmployer}</div>
           </div>
           
           {/* Avatar Dropdown Trigger */}
           <button 
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors focus:outline-none overflow-hidden"
+            className="w-8 h-8 md:w-10 md:h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors focus:outline-none overflow-hidden shrink-0"
           >
             {avatarUrl ? (
               <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
@@ -61,8 +61,8 @@ const Header: React.FC = () => {
           {isDropdownOpen && (
             <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden py-1 z-50 animate-in fade-in slide-in-from-top-2">
               <div className="px-4 py-3 border-b border-gray-100 md:hidden">
-                <p className="text-sm font-semibold text-gray-900">{displayName}</p>
-                <p className="text-xs text-gray-500">{displayEmployer}</p>
+                <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
+                <p className="text-xs text-gray-500 truncate">{displayEmployer}</p>
               </div>
               <a href="/settings" className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                 <Settings size={16} />

@@ -49,7 +49,7 @@ const HistoryPage: React.FC = () => {
   if (logsLoading || catsLoading) return <div className="p-8">Loading history...</div>;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-4 md:p-8 max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Calendar className="text-primary" />

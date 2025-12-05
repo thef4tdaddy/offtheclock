@@ -72,7 +72,7 @@ const AmazonPresetSection: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+    <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-100">
       <h2 className="text-xl font-bold mb-6 text-text-main flex items-center gap-2">
         <Package size={24} className="text-orange-500" />
         Amazon PTO Presets
