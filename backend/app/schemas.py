@@ -47,6 +47,7 @@ class PTOCategoryBase(BaseModel):
     accrual_frequency: AccrualFrequency
     max_balance: Optional[float] = None
     yearly_accrual_cap: Optional[float] = None
+    accrued_ytd: float = 0.0
     annual_grant_amount: float = 0.0
     start_date: datetime
     starting_balance: float = 0.0
@@ -74,4 +75,5 @@ class AmazonPresetRequest(BaseModel):
     shifts_per_week: int = 4
     current_upt: Optional[float] = None
     current_flex: Optional[float] = None
+    current_flex_ytd: Optional[float] = None
     current_std: Optional[float] = None

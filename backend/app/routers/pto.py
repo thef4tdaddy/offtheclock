@@ -44,17 +44,14 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
     sorted_logs = sorted(category.logs, key=lambda x: x.date)
     log_idx = 0
     
-    # Determine step size based on frequency
-    # Note: We iterate daily for simplicity and correctness with caps/grants
-    # step = timedelta(days=0) 
-    # if category.accrual_frequency == models.AccrualFrequency.WEEKLY:
-    #     step = timedelta(days=1) 
-    # ... (removed unused logic)
-        
     # Track yearly accrual for the cap
     current_year = current_date.year
-    yearly_accrued = 0.0
+    # Initialize yearly_accrued from YTD if we are starting in the same year
+    yearly_accrued = float(category.accrued_ytd) if category.accrued_ytd and category.start_date.year == current_year else 0.0
     
+    # Track last grant year to prevent double accrual in grant week
+    last_grant_year = 0
+
     while current_date <= target_date:
         # 1. Apply Usage/Adjustments for this day
         # We process logs that happened ON this day (or up to this day if we skipped)
@@ -75,13 +72,23 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
                 # Let's assume grants happen on Jan 1s strictly AFTER start_date to avoid double dipping with starting_balance.)
                 if current_date > category.start_date:
                     balance += float(category.annual_grant_amount)
+                    last_grant_year = current_date.year
                     # Annual grants usually don't count towards "accrual" caps, they are grants.
         
         # Check for Period Accrual
         if category.accrual_frequency == models.AccrualFrequency.WEEKLY:
             if current_date.weekday() == 6: # Sunday
-                should_accrue = True
-                accrual_amount = float(category.accrual_rate)
+                # Special Rule: If we had a grant this year (Jan 1), and this is the first week of the year, skip accrual.
+                # Logic: If current_date is within 7 days of Jan 1st of the same year.
+                is_grant_week = False
+                if category.annual_grant_amount > 0 and current_date.year == last_grant_year:
+                    days_since_jan1 = (current_date - datetime(current_date.year, 1, 1)).days
+                    if days_since_jan1 < 7:
+                        is_grant_week = True
+                
+                if not is_grant_week:
+                    should_accrue = True
+                    accrual_amount = float(category.accrual_rate)
                 
         elif category.accrual_frequency == models.AccrualFrequency.BIWEEKLY:
             # Simple logic: every 14 days from start
@@ -244,6 +251,13 @@ def create_amazon_presets(
     # Policy: 10 hours granted every Jan 1st. New employees get this 10h grant immediately upon start.
     # Implementation: We set starting_balance to current_flex (if provided) or 10.0 (default grant).
     # TODO: Automate the recurring Jan 1st grant (currently requires manual adjustment or new logic).
+    # Calculate accrued_ytd based on date
+    # Logic: Weeks passed in current year * 1.85, capped at 38.0
+    now = datetime.utcnow()
+    year_start = datetime(now.year, 1, 1)
+    weeks_passed = max(0, (now - year_start).days // 7)
+    estimated_accrued = min(weeks_passed * 1.85, 38.0)
+    
     flex = models.PTOCategory(
         user_id=current_user.id,
         name="Flex PTO",
@@ -251,6 +265,7 @@ def create_amazon_presets(
         accrual_frequency=models.AccrualFrequency.WEEKLY,
         max_balance=48.0,
         yearly_accrual_cap=38.0,
+        accrued_ytd=estimated_accrued,
         annual_grant_amount=10.0,
         start_date=datetime.utcnow(),
         starting_balance=request.current_flex if request.current_flex is not None else 10.0

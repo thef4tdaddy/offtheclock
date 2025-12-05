@@ -152,6 +152,7 @@ const AmazonPresetSection: React.FC = () => {
             onChange={(e) => setCurrentFlex(e.target.value)}
           />
         </div>
+
         <div>
           <label className="block text-sm font-medium text-text-muted mb-1">Current Vacation Balance</label>
           <input 
