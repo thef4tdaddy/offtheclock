@@ -4,9 +4,20 @@ from datetime import datetime
 from typing import Optional
 
 import sys
+from sqlalchemy.orm import Session
 
-def seed_data(email: Optional[str] = None) -> None:
-    db = SessionLocal()
+def seed_data(email: Optional[str] = None, db: Optional[Session] = None) -> None:
+    """
+    Seed PTO categories for a user.
+    
+    Args:
+        email: Email of the user to seed data for. If None, uses first user.
+        db: Database session. If None, creates a new session.
+    """
+    close_db = False
+    if db is None:
+        db = SessionLocal()
+        close_db = True
     
     if email:
         user = db.query(models.User).filter(models.User.email == email).first()
@@ -66,7 +77,9 @@ def seed_data(email: Optional[str] = None) -> None:
     db.add_all([upt, flex, std])
     db.commit()
     print("Successfully seeded PTO categories!")
-    db.close()
+    
+    if close_db:
+        db.close()
 
 if __name__ == "__main__":
     email_arg = sys.argv[1] if len(sys.argv) > 1 else None
