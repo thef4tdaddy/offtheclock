@@ -16,6 +16,12 @@ const AccrualFrequency = {
   ANNUALLY: "annually"
 } as const;
 
+interface PTOLog {
+  id: number;
+  date: string;
+  amount: number;
+}
+
 interface PTOCategory {
   id: number;
   name: string;
@@ -24,16 +30,11 @@ interface PTOCategory {
   max_balance?: number;
   yearly_accrual_cap?: number;
   annual_grant_amount?: number;
+  accrued_ytd?: number;
   start_date: string;
   starting_balance: number;
   current_balance: number;
   logs?: PTOLog[];
-}
-
-interface PTOLog {
-  id: number;
-  date: string;
-  amount: number;
 }
 
 const ProjectionsPage: React.FC = () => {
@@ -47,31 +48,38 @@ const ProjectionsPage: React.FC = () => {
     },
   });
 
-  // Client-side simulation logic (simplified version of backend)
+  // Client-side simulation logic
   const chartData = useMemo(() => {
     if (!categories) return [];
 
-    const data = [];
+    const data: Array<{ date: string; fullDate: string; [key: string]: string | number }> = [];
     const today = new Date();
     const endDate = addDays(today, projectionDays);
     
     // Initialize simulation state
     // We start from TODAY with CURRENT BALANCE.
-    // Note: This assumes current_balance is accurate as of today.
     let currentSimDate = new Date(today);
+    let currentYear = currentSimDate.getFullYear();
     
     // State for each category
     const catStates = categories.map(cat => ({
       ...cat,
       simBalance: cat.current_balance,
-      yearlyAccrued: 0 // We'd need to fetch this from backend to be perfectly accurate for mid-year caps, but assuming 0 for future projection from today is a simplification. 
-                       // Ideally, we should fetch "accrued_ytd" from backend. For now, we'll assume 0 or ignore cap for short term, OR we just simulate accrual from now.
-                       // Better approach: The backend cap logic resets on Jan 1. If we project across Jan 1, we need to handle it.
+      // We ideally need accrued_ytd from backend to be perfect. 
+      // If we implemented the backend fix, we should see accrued_ytd in the response.
+      yearlyAccrued: cat.accrued_ytd || 0 
     }));
 
     while (currentSimDate <= endDate) {
       const dateStr = format(currentSimDate, 'MMM d');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataPoint: any = { date: dateStr, fullDate: currentSimDate.toISOString() };
+
+      // Helper to check if it's a new year for logic resetting
+      if (currentSimDate.getFullYear() !== currentYear) {
+         currentYear = currentSimDate.getFullYear();
+         catStates.forEach(cat => cat.yearlyAccrued = 0);
+      }
 
       catStates.forEach(cat => {
         let dailyAccrual = 0;
@@ -80,7 +88,7 @@ const ProjectionsPage: React.FC = () => {
         // 1. Check Annual Grant (Jan 1)
         if (cat.annual_grant_amount && cat.annual_grant_amount > 0) {
           if (currentSimDate.getMonth() === 0 && currentSimDate.getDate() === 1) {
-             // Only if not start date (simplified)
+             // Grant logic
              cat.simBalance += cat.annual_grant_amount;
           }
         }
@@ -90,6 +98,8 @@ const ProjectionsPage: React.FC = () => {
         
         if (cat.accrual_frequency === AccrualFrequency.WEEKLY) {
           if (currentSimDate.getDay() === 0) { // Sunday
+            // Logic for skipping if grant week? 
+            // Ideally we replicate exact backend logic, but simple weekly is okay for now visually.
             shouldAccrue = true;
             dailyAccrual = cat.accrual_rate;
           }
@@ -99,16 +109,20 @@ const ProjectionsPage: React.FC = () => {
              shouldAccrue = true;
              dailyAccrual = cat.accrual_rate;
            }
+        } else if (cat.accrual_frequency === AccrualFrequency.MONTHLY) {
+            if (currentSimDate.getDate() === 1) {
+                shouldAccrue = true;
+                dailyAccrual = cat.accrual_rate;
+            }
+        } else if (cat.accrual_frequency === AccrualFrequency.ANNUALLY) {
+            if (currentSimDate.getMonth() === 0 && currentSimDate.getDate() === 1) {
+                shouldAccrue = true;
+                dailyAccrual = cat.accrual_rate;
+            }
         }
-        // ... (other frequencies simplified for now, focusing on Amazon defaults)
 
         // 3. Apply Yearly Cap
         if (shouldAccrue) {
-           // Reset yearly accrued on Jan 1
-           if (currentSimDate.getMonth() === 0 && currentSimDate.getDate() === 1) {
-             cat.yearlyAccrued = 0;
-           }
-
            if (cat.yearly_accrual_cap) {
              const remaining = cat.yearly_accrual_cap - cat.yearlyAccrued;
              if (remaining > 0) {
@@ -191,7 +205,6 @@ const ProjectionsPage: React.FC = () => {
                 activeDot={{ r: 6 }}
               />
             ))}
-            {/* Add reference lines for caps if needed, or just let the line flatline */}
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -210,6 +223,7 @@ const ProjectionsPage: React.FC = () => {
              <div className="flex justify-between text-sm mt-1">
                <span className="text-gray-500">Projected ({projectionDays}d):</span>
                <span className="font-mono font-bold text-primary">
+                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                  {chartData.length > 0 ? (chartData[chartData.length - 1] as any)[cat.name] : '-'}h
                </span>
              </div>
