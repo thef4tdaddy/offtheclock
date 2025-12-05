@@ -1,7 +1,10 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
-from .models import UserRole, AccrualFrequency
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr
+
+from .models import AccrualFrequency, UserRole
+
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -9,13 +12,18 @@ class UserBase(BaseModel):
     employer: Optional[str] = None
     avatar_url: Optional[str] = None
 
+
 class UserCreate(UserBase):
     password: str
+    shift_length: Optional[float] = 10.0
+    shifts_per_week: Optional[int] = 4
+
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     employer: Optional[str] = None
     avatar_url: Optional[str] = None
+
 
 class User(UserBase):
     id: int
@@ -25,13 +33,16 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+
 class PTOLogBase(BaseModel):
     date: datetime
     amount: float
     note: Optional[str] = None
 
+
 class PTOLogCreate(PTOLogBase):
     category_id: int
+
 
 class PTOLog(PTOLogBase):
     id: int
@@ -40,6 +51,7 @@ class PTOLog(PTOLogBase):
 
     class Config:
         from_attributes = True
+
 
 class PTOCategoryBase(BaseModel):
     name: str
@@ -52,22 +64,44 @@ class PTOCategoryBase(BaseModel):
     start_date: datetime
     starting_balance: float = 0.0
 
+
 class PTOCategoryCreate(PTOCategoryBase):
     pass
+
 
 class PTOCategory(PTOCategoryBase):
     id: int
     user_id: int
     # We will compute these fields dynamically in the response
-    current_balance: float 
+    current_balance: float
     projected_balance: Optional[float] = None
 
     class Config:
         from_attributes = True
 
+
 class BalanceProjection(BaseModel):
     date: datetime
     projected_balance: float
+
+
+class ShiftBase(BaseModel):
+    start_time: datetime
+    end_time: datetime
+
+
+class ShiftCreate(ShiftBase):
+    pass
+
+
+class Shift(ShiftBase):
+    id: int
+    user_id: int
+    upt_log_id: Optional[int] = None
+
+    class Config:
+        from_attributes = True
+
 
 class AmazonPresetRequest(BaseModel):
     tenure_years: int = 0

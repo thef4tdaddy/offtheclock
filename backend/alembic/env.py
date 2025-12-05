@@ -1,16 +1,16 @@
 import os
 import sys
 from logging.config import fileConfig
-from dotenv import load_dotenv
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from dotenv import load_dotenv
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
 # Add the parent directory to sys.path so we can import app
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from app import models  # Ensure models are registered
 from app.database import Base
 
 load_dotenv()
@@ -23,7 +23,7 @@ config = context.config
 database_url = os.getenv("DATABASE_URL")
 if database_url and database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
-config.set_main_option("sqlalchemy.url", os.environ.get("DATABASE_URL")) # type: ignore
+config.set_main_option("sqlalchemy.url", os.environ.get("DATABASE_URL"))  # type: ignore
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -80,9 +80,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

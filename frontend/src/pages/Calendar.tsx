@@ -4,19 +4,30 @@ import LogModal from '../components/LogModal';
 import { formatHours } from '../utils/format';
 import { usePTOLogs, usePTOCategories } from '../hooks/api/usePTO';
 import { useDeleteLogMutation } from '../hooks/api/usePTOMutation';
+import { useShifts, useDeleteShiftMutation } from '../hooks/api/useShifts';
+import { useUserProfile } from '../hooks/api/useUser';
+import ShiftModal from '../components/ShiftModal';
+import { Calendar as CalendarIcon, Briefcase, TrendingUp } from 'lucide-react';
+import Button from '../components/common/Button';
 
 const Calendar: React.FC = () => {
   const { data: logs = [], isLoading: logsLoading } = usePTOLogs();
   const { data: categories = [], isLoading: catsLoading } = usePTOCategories();
+  const { data: shifts = [], isLoading: shiftsLoading } = useShifts();
+  const { data: user } = useUserProfile();
   const { mutate: deleteLog } = useDeleteLogMutation();
+  const { mutate: deleteShift } = useDeleteShiftMutation();
 
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Modal State
+  // Modal State
   const [showLogModal, setShowLogModal] = useState(false);
+  const [showShiftModal, setShowShiftModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [modalInitialDate, setModalInitialDate] = useState<string>('');
 
-  const loading = logsLoading || catsLoading;
+  const loading = logsLoading || catsLoading || shiftsLoading;
 
   const handleDayClick = (dateStr: string) => {
     setSelectedDate(dateStr);
@@ -52,6 +63,17 @@ const Calendar: React.FC = () => {
     });
   };
 
+  const handleDeleteShift = (e: React.MouseEvent, shiftId: number) => {
+    e.stopPropagation();
+    if (!confirm('Are you sure you want to delete this shift?')) return;
+    deleteShift(shiftId);
+  };
+
+  const openShiftModal = (dateStr?: string) => {
+    setModalInitialDate(dateStr || new Date().toISOString().split('T')[0]);
+    setShowShiftModal(true);
+  };
+
   const renderCalendarDays = () => {
     const daysInMonth = getDaysInMonth(currentDate);
     const firstDay = getFirstDayOfMonth(currentDate);
@@ -70,6 +92,28 @@ const Calendar: React.FC = () => {
         .toISOString()
         .split('T')[0];
       const dayLogs = logs.filter((log) => log.date.startsWith(dateStr));
+      const dayShifts = shifts.filter((shift) => shift.start_time.startsWith(dateStr));
+
+      // Projections Logic (Visual only)
+      const dayDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      const isSunday = dayDate.getDay() === 0;
+      const isJan1 = dayDate.getMonth() === 0 && dayDate.getDate() === 1;
+
+      const projections = [];
+      if (dayDate > new Date()) {
+        // Only show in future
+        if (isJan1) {
+          const hasUPT = categories.some((c) => c.name.includes('UPT'));
+          if (hasUPT)
+            projections.push({ label: 'UPT Grant', icon: 'gift', color: 'text-green-600' });
+        }
+        if (isSunday) {
+          const weeklyCats = categories.filter((c) => c.accrual_frequency === 'weekly');
+          if (weeklyCats.length > 0) {
+            projections.push({ label: 'Weekly Accrual', icon: 'trend', color: 'text-green-500' });
+          }
+        }
+      }
 
       days.push(
         <div
@@ -89,6 +133,33 @@ const Calendar: React.FC = () => {
           </span>
 
           <div className="mt-2 space-y-1 overflow-y-auto max-h-[80px]">
+            {dayShifts.map((shift) => {
+              const start = new Date(shift.start_time);
+              const end = new Date(shift.end_time);
+              const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+              return (
+                <div
+                  key={shift.id}
+                  className="text-xs p-1 rounded px-2 truncate flex items-center justify-between group/shift bg-blue-100 text-blue-700 border border-blue-200"
+                  title={`Work Shift: ${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} (${duration.toFixed(1)}h)`}
+                >
+                  <span className="truncate mr-1 flex items-center gap-1">
+                    <Briefcase size={10} />
+                    {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} -{' '}
+                    {duration.toFixed(1)}h
+                  </span>
+                  <button
+                    onClick={(e) => handleDeleteShift(e, shift.id)}
+                    className="opacity-0 group-hover/shift:opacity-100 hover:text-blue-900 transition-opacity"
+                    title="Delete Shift"
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+
+            {/* Logs */}
             {dayLogs.map((log) => (
               <div
                 key={log.id}
@@ -110,6 +181,18 @@ const Calendar: React.FC = () => {
                 >
                   ×
                 </button>
+              </div>
+            ))}
+
+            {/* Projections */}
+            {projections.map((proj, idx) => (
+              <div
+                key={idx}
+                className={`text-xs p-1 flex items-center gap-1 ${proj.color} opacity-75`}
+                title={proj.label}
+              >
+                <TrendingUp size={10} />
+                <span className="truncate">{proj.label}</span>
               </div>
             ))}
           </div>
@@ -148,6 +231,15 @@ const Calendar: React.FC = () => {
             <ChevronRight size={20} className="text-gray-600" />
           </button>
         </div>
+
+        <Button
+          onClick={() => openShiftModal()}
+          variant="primary"
+          className="shadow-lg shadow-primary/20"
+        >
+          <CalendarIcon size={18} className="mr-2" />
+          Manage Schedule
+        </Button>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -175,6 +267,17 @@ const Calendar: React.FC = () => {
         }}
         initialDate={selectedDate}
         categories={categories}
+      />
+
+      <ShiftModal
+        key={showShiftModal ? `open-${modalInitialDate}-${user?.email || 'loading'}` : 'closed'}
+        isOpen={showShiftModal}
+        onClose={() => setShowShiftModal(false)}
+        initialDate={modalInitialDate}
+        userPreferences={{
+          shift_length: user?.shift_length,
+          shifts_per_week: user?.shifts_per_week,
+        }}
       />
     </div>
   );
