@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Package, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useApplyAmazonPresetMutation } from '../../hooks/api/usePTOMutation';
+import Button from '../../components/common/Button';
 
 const AmazonPresetSection: React.FC = () => {
   // Use strings for inputs to allow empty state and better typing experience
@@ -73,7 +74,7 @@ const AmazonPresetSection: React.FC = () => {
   return (
     <div className="bg-white rounded-2xl p-4 md:p-8 shadow-sm border border-gray-100">
       <h2 className="text-xl font-bold mb-6 text-text-main flex items-center gap-2">
-        <Package size={24} className="text-orange-500" />
+        <Package size={24} className="text-primary" />
         Amazon PTO Presets
       </h2>
 
@@ -179,14 +180,16 @@ const AmazonPresetSection: React.FC = () => {
       </div>
 
       <div className="flex justify-end">
-        <button
+        <Button
           onClick={handleLoadPresets}
-          disabled={isSubmitting}
-          className="flex items-center gap-2 px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium shadow-lg shadow-orange-100 transition-all disabled:opacity-50"
+          isLoading={isSubmitting}
+          variant="primary"
+          className="px-8 shadow-lg shadow-orange-100"
         >
-          {isSubmitting ? 'Loading...' : 'Load Amazon Defaults'}
-          {!isSubmitting && <CheckCircle size={20} />}
-        </button>
+          {!isSubmitting && 'Load Amazon Defaults'}
+          {!isSubmitting && <CheckCircle size={20} className="ml-2" />}
+          {isSubmitting && 'Loading...'}
+        </Button>
       </div>
     </div>
   );

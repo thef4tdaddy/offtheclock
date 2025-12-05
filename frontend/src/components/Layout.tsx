@@ -1,6 +1,17 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Home, Calendar, Clock, Settings, LogOut, Menu, TrendingUp, X } from 'lucide-react';
+import {
+  Home,
+  Calendar,
+  Clock,
+  Settings,
+  LogOut,
+  Menu,
+  TrendingUp,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
 import Header from './Header';
 
 interface LayoutProps {
@@ -10,64 +21,68 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
 
   return (
     <div className="flex h-screen bg-bg-light font-sans overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-dark-blue text-white flex flex-col h-full shrink-0 hidden md:flex">
-        <div className="p-6 flex items-center justify-center">
+      {/* Sidebar */}
+      <aside
+        className={`${
+          isCollapsed ? 'w-20' : 'w-64'
+        } bg-dark-blue text-white flex flex-col h-full shrink-0 hidden md:flex transition-all duration-300 ease-in-out`}
+      >
+        <div className="p-6 flex items-center justify-center h-20">
           <img
-            src="/images/OffTheClock-Logo-With-Text.svg"
+            src={
+              isCollapsed ? '/images/logo-icon-only.svg' : '/images/OffTheClock-Logo-With-Text.svg'
+            }
             alt="OffTheClock"
-            className="h-12 w-auto"
+            className={`${isCollapsed ? 'h-8' : 'h-12'} w-auto transition-all`}
           />
         </div>
 
         <nav className="flex-1 px-4 py-4 space-y-2 overflow-y-auto">
-          <a
-            href="/"
-            className="flex items-center gap-3 px-4 py-3 bg-white/10 rounded-lg text-white"
-          >
-            <Home size={20} />
-            <span className="font-medium">Home</span>
-          </a>
-          <a
-            href="/calendar"
-            className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
-          >
-            <Calendar size={20} />
-            <span className="font-medium">Calendar</span>
-          </a>
-          <a
-            href="/history"
-            className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
-          >
-            <Clock size={20} />
-            <span className="font-medium">History</span>
-          </a>
-          <a
-            href="/projections"
-            className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
-          >
-            <TrendingUp size={20} />
-            <span className="font-medium">Projections</span>
-          </a>
-          <a
-            href="/settings"
-            className="flex items-center gap-3 px-4 py-3 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
-          >
-            <Settings size={20} />
-            <span className="font-medium">Settings</span>
-          </a>
+          {[
+            { href: '/', icon: Home, label: 'Home' },
+            { href: '/calendar', icon: Calendar, label: 'Calendar' },
+            { href: '/history', icon: Clock, label: 'History' },
+            { href: '/projections', icon: TrendingUp, label: 'Projections' },
+            { href: '/settings', icon: Settings, label: 'Settings' },
+          ].map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                window.location.pathname === item.href
+                  ? 'bg-white/10 text-white'
+                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+              } ${isCollapsed ? 'justify-center' : ''}`}
+              title={isCollapsed ? item.label : ''}
+            >
+              <item.icon size={20} />
+              {!isCollapsed && <span className="font-medium whitespace-nowrap">{item.label}</span>}
+            </a>
+          ))}
         </nav>
 
-        <div className="p-4 border-t border-white/10 shrink-0">
+        <div className="p-4 border-t border-white/10 shrink-0 space-y-2">
           <button
             onClick={logout}
-            className="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white/5 hover:text-red-300 rounded-lg w-full transition-colors"
+            className={`flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white/5 hover:text-red-300 rounded-lg w-full transition-colors ${
+              isCollapsed ? 'justify-center' : ''
+            }`}
+            title={isCollapsed ? 'Logout' : ''}
           >
             <LogOut size={20} />
-            <span className="font-medium">Logout</span>
+            {!isCollapsed && <span className="font-medium">Logout</span>}
+          </button>
+
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="flex items-center justify-center w-full py-2 text-gray-400 hover:bg-white/5 hover:text-white rounded-lg transition-colors"
+          >
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         </div>
       </aside>

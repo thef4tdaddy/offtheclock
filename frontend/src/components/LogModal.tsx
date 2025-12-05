@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { parseDuration } from '../utils/format';
 import { useCreateLogMutation } from '../hooks/api/usePTOMutation';
 import { type PTOCategory } from '../domain/schemas/pto';
+import Button from './common/Button';
 
 interface LogModalProps {
   isOpen: boolean;
@@ -160,16 +161,14 @@ const LogModal: React.FC<LogModalProps> = ({
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            className={`w-full py-3 text-white rounded-xl font-medium shadow-lg transition-all ${
-              isUsage
-                ? 'bg-primary hover:bg-primary-dark shadow-cyan-100'
-                : 'bg-secondary hover:bg-secondary-dark shadow-orange-100'
-            }`}
+            fullWidth
+            variant={isUsage ? 'primary' : 'secondary'}
+            className={`py-3 ${isUsage ? 'shadow-orange-100' : 'shadow-gray-200'}`}
           >
             {isUsage ? 'Log Time Off' : 'Add Adjustment'}
-          </button>
+          </Button>
         </form>
       </div>
     </div>
