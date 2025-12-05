@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.3.1](https://github.com/thef4tdaddy/offtheclock/compare/offtheclock-v0.3.0...offtheclock-v0.3.1) (2025-12-05)
+
+
+### Bug Fixes
+
+* **backend:** add robustness checks to pto calculation to prevent 500s ([177bdde](https://github.com/thef4tdaddy/offtheclock/commit/177bddedc3bab64f4ce6be63fa2ea8a4eeb70cec))
+* **backend:** fix auth dependency crash by creating dependencies.py ([d31152a](https://github.com/thef4tdaddy/offtheclock/commit/d31152a96037cb7b0e6cb929d164ecf5e19c211b))
+* **backend:** proper pto router refactor and lint config fix ([3229fdf](https://github.com/thef4tdaddy/offtheclock/commit/3229fdfe54c301cd4e925ea3e230108808ed1941))
+* **backend:** remove duplicate avatar_url column in User model ([1921993](https://github.com/thef4tdaddy/offtheclock/commit/19219935b557ea6c38b0bc820e7d44a3722ac123))
+* **backend:** resolve remaining AttributeError in shifts router (skip hooks) ([8f28de1](https://github.com/thef4tdaddy/offtheclock/commit/8f28de1812d291ed31526b0232bc52cb8d0e2d5f))
+
 ## [0.3.0](https://github.com/thef4tdaddy/offtheclock/compare/offtheclock-v0.2.0...offtheclock-v0.3.0) (2025-12-05)
 
 
