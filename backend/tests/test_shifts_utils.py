@@ -1,6 +1,11 @@
 """
 Unit tests for shifts router utility functions.
 Tests UPT accrual calculation logic.
+
+UPT (Unpaid Time) Accrual Policy:
+Amazon's policy grants 5 minutes of UPT per hour worked.
+Formula: (hours_worked * 5 minutes) / 60 = UPT hours earned
+Example: 10-hour shift earns 50 minutes = 0.833 hours of UPT
 """
 import pytest
 from app.routers.shifts import calculate_upt_accrual
