@@ -43,7 +43,7 @@ const Forecast: React.FC = () => {
         <button
           onClick={handleForecast}
           disabled={isFetching || !targetDate}
-          className="w-full md:w-auto bg-dark-blue text-white px-6 py-3 rounded-xl hover:bg-gray-800 disabled:opacity-50 font-medium transition-colors shadow-lg shadow-gray-200"
+          className="w-full md:w-auto bg-secondary text-white px-6 py-3 rounded-xl hover:bg-gray-800 disabled:opacity-50 font-medium transition-colors shadow-lg shadow-gray-200"
         >
           {isFetching ? 'Calculating...' : 'Calculate Projection'}
         </button>

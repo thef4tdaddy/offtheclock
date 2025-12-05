@@ -16,9 +16,11 @@ const Header: React.FC = () => {
   const avatarUrl = profile?.avatar_url;
 
   return (
-    <header className="flex justify-between items-center h-16 md:h-20 px-4 md:px-8 bg-dark-blue text-white shadow-md shrink-0 z-10">
+    <header className="flex justify-between items-center h-16 md:h-20 px-4 md:px-8 bg-secondary text-white shadow-md shrink-0 z-10">
       <div className="flex-1 min-w-0 mr-4">
-        <h1 className="text-lg md:text-xl font-bold truncate">Welcome back, {displayName}</h1>
+        <h1 className="text-lg md:text-xl font-bold truncate">
+          Welcome back, {displayName.split(' ')[0]}
+        </h1>
       </div>
       <div className="flex items-center gap-4 shrink-0">
         <button className="p-2 text-gray-400 hover:text-white transition-colors relative">

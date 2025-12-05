@@ -30,7 +30,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <aside
         className={`${
           isCollapsed ? 'w-20' : 'w-64'
-        } bg-dark-blue text-white flex flex-col h-full shrink-0 hidden md:flex transition-all duration-300 ease-in-out`}
+        } bg-secondary text-white flex flex-col h-full shrink-0 hidden md:flex transition-all duration-300 ease-in-out`}
       >
         <div className="p-6 flex items-center justify-center h-20">
           <img
@@ -88,7 +88,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed w-full bg-dark-blue text-white z-20 flex items-center justify-between p-4 shadow-md">
+      <div className="md:hidden fixed w-full bg-secondary text-white z-20 flex items-center justify-between p-4 shadow-md">
         <div className="flex items-center gap-2">
           <img
             src="/images/OffTheClock-Logo-With-Text.svg"
