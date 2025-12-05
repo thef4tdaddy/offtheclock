@@ -1,11 +1,4 @@
-# Frontend Checks
-cd frontend
-npm run typecheck
-npm run lint
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
 
-# Backend Checks
-cd ../
-source venv/bin/activate
-cd backend
-ruff check .
-mypy .
+npx lint-staged --config configs/.lintstagedrc.json

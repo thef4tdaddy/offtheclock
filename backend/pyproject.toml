@@ -6,3 +6,11 @@ target-version = "py39"
 python_version = "3.9"
 strict = true
 ignore_missing_imports = true
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+line_length = 88
