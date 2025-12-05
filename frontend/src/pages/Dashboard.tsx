@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
         </div>
         <button
           onClick={() => setShowLogModal(true)}
-          className="bg-secondary hover:bg-secondary-dark text-white font-medium py-3 px-6 rounded-xl shadow-lg shadow-secondary/20 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+          className="bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-xl shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
         >
           <Clock size={20} />
           <span>Manage Balance</span>

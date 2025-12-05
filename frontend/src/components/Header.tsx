@@ -19,11 +19,12 @@ const Header: React.FC = () => {
     <header className="flex justify-between items-center h-16 md:h-20 px-4 md:px-8 bg-secondary text-white shadow-md shrink-0 z-10">
       <div className="flex-1 min-w-0 mr-4">
         <h1 className="text-lg md:text-xl font-bold truncate">
-          Welcome back, {displayName.split(' ')[0]}
+          <span className="text-gray-400 font-normal">Welcome back, </span>
+          <span>{displayName.split(' ')[0]}</span>
         </h1>
       </div>
       <div className="flex items-center gap-4 shrink-0">
-        <button className="p-2 text-gray-400 hover:text-white transition-colors relative">
+        <button className="p-2 text-accent hover:text-primary-dark transition-colors relative">
           <Bell size={20} />
           <span className="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
         </button>
@@ -63,7 +64,7 @@ const Header: React.FC = () => {
               </a>
               <button
                 onClick={logout}
-                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
+                className="w-full flex items-center gap-2 px-4 py-3 text-sm font-bold text-accent hover:bg-orange-50 transition-colors text-left"
               >
                 <LogOut size={16} />
                 Logout

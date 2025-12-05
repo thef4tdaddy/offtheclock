@@ -69,13 +69,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="p-4 border-t border-white/10 shrink-0 space-y-2">
           <button
             onClick={logout}
-            className={`flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-white/5 hover:text-red-300 rounded-lg w-full transition-colors ${
+            className={`flex items-center gap-3 px-4 py-3 text-accent hover:bg-white/5 hover:text-white rounded-lg w-full transition-colors ${
               isCollapsed ? 'justify-center' : ''
             }`}
             title={isCollapsed ? 'Logout' : ''}
           >
             <LogOut size={20} />
-            {!isCollapsed && <span className="font-medium">Logout</span>}
+            {!isCollapsed && <span className="font-bold">Logout</span>}
           </button>
 
           <button
