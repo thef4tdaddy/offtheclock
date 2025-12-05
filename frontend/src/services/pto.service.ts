@@ -1,11 +1,12 @@
 import axios from 'axios';
-import { 
-  PTOCategorySchema, 
-  PTOLogSchema, 
-  type CreateCategoryPayload, 
+import {
+  PTOCategorySchema,
+  PTOLogSchema,
+  type CreateCategoryPayload,
   type CreateLogPayload,
   type PTOCategory,
-  type PTOLog
+  type PTOLog,
+  type AmazonPresetPayload,
 } from '../domain/schemas/pto';
 import { z } from 'zod';
 
@@ -37,6 +38,16 @@ export const ptoService = {
   },
 
   async deleteLog(id: number): Promise<void> {
-    await axios.delete(`/api/pto/logs/${id}`);
-  }
+    await axios.delete(`/api/pto/log/${id}`);
+  },
+
+  async getForecast(targetDate: string): Promise<PTOCategory[]> {
+    // Note: The UI expects objects with 'current_balance' which matches the API response for forecast
+    const res = await axios.get(`/api/pto/forecast?target_date=${targetDate}`);
+    return res.data;
+  },
+
+  async applyAmazonPreset(payload: AmazonPresetPayload): Promise<void> {
+    await axios.post('/api/pto/presets/amazon', payload);
+  },
 };

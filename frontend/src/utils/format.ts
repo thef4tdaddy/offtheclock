@@ -1,7 +1,7 @@
 export const formatHours = (decimalHours: number): string => {
   const isNegative = decimalHours < 0;
   const absoluteHours = Math.abs(decimalHours);
-  
+
   const hours = Math.floor(absoluteHours);
   const minutes = Math.round((absoluteHours - hours) * 60);
 
@@ -33,7 +33,7 @@ export const parseDuration = (input: string): number | null => {
 
   // 3. "1h 30m" or "90m" format
   let totalHours = 0;
-  
+
   // Extract hours
   const hoursMatch = cleanInput.match(/(\d+(\.\d+)?)\s*h/);
   if (hoursMatch) {

@@ -1,28 +1,14 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { User, Bell, Settings, LogOut } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-
-interface UserProfile {
-  email: string;
-  full_name?: string;
-  employer?: string;
-  avatar_url?: string;
-}
+import { useUserProfile } from '../hooks/api/useUser';
 
 const Header: React.FC = () => {
   const { logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const { data: profile } = useQuery<UserProfile>({
-    queryKey: ['userProfile'],
-    queryFn: async () => {
-      const res = await axios.get('/api/auth/users/me');
-      return res.data;
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  });
+  // Replace inline query with custom hook
+  const { data: profile } = useUserProfile();
 
   // Derived display values
   const displayName = profile?.full_name || profile?.email?.split('@')[0] || 'User';
@@ -41,12 +27,14 @@ const Header: React.FC = () => {
         </button>
         <div className="flex items-center gap-3 pl-4 border-l border-gray-700 relative">
           <div className="text-right hidden sm:block">
-            <div className="text-sm font-semibold text-white truncate max-w-[150px]">{displayName}</div>
+            <div className="text-sm font-semibold text-white truncate max-w-[150px]">
+              {displayName}
+            </div>
             <div className="text-xs text-gray-400 truncate max-w-[150px]">{displayEmployer}</div>
           </div>
-          
+
           {/* Avatar Dropdown Trigger */}
-          <button 
+          <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="w-8 h-8 md:w-10 md:h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors focus:outline-none overflow-hidden shrink-0"
           >
@@ -64,11 +52,14 @@ const Header: React.FC = () => {
                 <p className="text-sm font-semibold text-gray-900 truncate">{displayName}</p>
                 <p className="text-xs text-gray-500 truncate">{displayEmployer}</p>
               </div>
-              <a href="/settings" className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+              <a
+                href="/settings"
+                className="flex items-center gap-2 px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
                 <Settings size={16} />
                 Settings
               </a>
-              <button 
+              <button
                 onClick={logout}
                 className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left"
               >

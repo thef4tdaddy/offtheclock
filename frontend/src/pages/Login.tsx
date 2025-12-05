@@ -7,10 +7,10 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
-  
+
   const { mutate: loginMutate, isPending } = useLoginMutation();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -28,7 +28,7 @@ const Login: React.FC = () => {
           console.error(err);
           setError('Invalid email or password');
         },
-      }
+      },
     );
   };
 

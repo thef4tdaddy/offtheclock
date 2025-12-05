@@ -1,6 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ptoService } from '../../services/pto.service';
-import { type CreateCategoryPayload, type CreateLogPayload } from '../../domain/schemas/pto';
+import {
+  type CreateCategoryPayload,
+  type CreateLogPayload,
+  type AmazonPresetPayload,
+} from '../../domain/schemas/pto';
 
 export const useCreateCategoryMutation = () => {
   const queryClient = useQueryClient();
@@ -15,7 +19,7 @@ export const useCreateCategoryMutation = () => {
 export const useUpdateCategoryMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: number; payload: CreateCategoryPayload }) => 
+    mutationFn: ({ id, payload }: { id: number; payload: CreateCategoryPayload }) =>
       ptoService.updateCategory(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ptoCategories'] });
@@ -51,6 +55,17 @@ export const useDeleteLogMutation = () => {
     mutationFn: (id: number) => ptoService.deleteLog(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ptoLogs'] });
+      // Logs affect balances, so invalidate categories too
+      queryClient.invalidateQueries({ queryKey: ['ptoCategories'] });
+    },
+  });
+};
+
+export const useApplyAmazonPresetMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: AmazonPresetPayload) => ptoService.applyAmazonPreset(payload),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ptoCategories'] });
     },
   });

@@ -1,5 +1,9 @@
 import axios from 'axios';
-import { type LoginCredentials, TokenResponseSchema, type TokenResponse } from '../domain/schemas/auth';
+import {
+  type LoginCredentials,
+  TokenResponseSchema,
+  type TokenResponse,
+} from '../domain/schemas/auth';
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<TokenResponse> {

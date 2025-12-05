@@ -13,10 +13,10 @@ export const api = axios.create({
 export async function fetcher<T>(
   url: string,
   schema: z.ZodType<T>,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<T> {
   const response = await api.get(url, config);
-  
+
   // Validate the response data against the schema
   // This ensures runtime type safety
   const result = schema.safeParse(response.data);
@@ -34,10 +34,10 @@ export async function poster<T, D>(
   url: string,
   data: D,
   responseSchema: z.ZodType<T>,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<T> {
   const response = await api.post(url, data, config);
-  
+
   const result = responseSchema.safeParse(response.data);
 
   if (!result.success) {

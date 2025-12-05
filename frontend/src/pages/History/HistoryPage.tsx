@@ -10,13 +10,15 @@ const HistoryPage: React.FC = () => {
   const { data: categories = [], isLoading: catsLoading } = usePTOCategories();
 
   const getCategoryName = (id: number) => {
-    return categories.find(c => c.id === id)?.name || 'Unknown';
+    return categories.find((c) => c.id === id)?.name || 'Unknown';
   };
 
-  const filteredLogs = logs.filter(log => {
-    if (selectedCategory === 'all') return true;
-    return log.category_id === Number(selectedCategory);
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sort descending
+  const filteredLogs = logs
+    .filter((log) => {
+      if (selectedCategory === 'all') return true;
+      return log.category_id === Number(selectedCategory);
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sort descending
 
   if (logsLoading || catsLoading) return <div className="p-8">Loading history...</div>;
 
@@ -27,17 +29,19 @@ const HistoryPage: React.FC = () => {
           <Calendar className="text-primary" />
           PTO History
         </h1>
-        
+
         <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
           <Filter size={16} className="text-gray-400 ml-2" />
-          <select 
+          <select
             className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer outline-none"
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option value="all">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
             ))}
           </select>
         </div>
@@ -48,20 +52,32 @@ const HistoryPage: React.FC = () => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="text-right py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Note</th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Category
+                </th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th className="text-right py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Amount
+                </th>
+                <th className="text-left py-4 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Note
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-gray-500">No logs found.</td>
+                  <td colSpan={5} className="py-8 text-center text-gray-500">
+                    No logs found.
+                  </td>
                 </tr>
               ) : (
-                filteredLogs.map(log => (
+                filteredLogs.map((log) => (
                   <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="py-4 px-6 text-sm text-gray-900 font-medium">
                       {format(new Date(log.date), 'MMM d, yyyy')}
@@ -84,12 +100,13 @@ const HistoryPage: React.FC = () => {
                         </span>
                       )}
                     </td>
-                    <td className={`py-4 px-6 text-sm text-right font-bold ${log.amount < 0 ? 'text-red-600' : 'text-emerald-600'}`}>
-                      {log.amount > 0 ? '+' : ''}{log.amount}h
+                    <td
+                      className={`py-4 px-6 text-sm text-right font-bold ${log.amount < 0 ? 'text-red-600' : 'text-emerald-600'}`}
+                    >
+                      {log.amount > 0 ? '+' : ''}
+                      {log.amount}h
                     </td>
-                    <td className="py-4 px-6 text-sm text-gray-500 italic">
-                      {log.note || '-'}
-                    </td>
+                    <td className="py-4 px-6 text-sm text-gray-500 italic">{log.note || '-'}</td>
                   </tr>
                 ))
               )}

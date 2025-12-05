@@ -14,3 +14,11 @@ export const usePTOLogs = () => {
     queryFn: ptoService.getLogs,
   });
 };
+
+export const usePTOForecast = (targetDate: string) => {
+  return useQuery({
+    queryKey: ['ptoForecast', targetDate],
+    queryFn: () => ptoService.getForecast(targetDate),
+    enabled: !!targetDate, // Only fetch if date is present
+  });
+};

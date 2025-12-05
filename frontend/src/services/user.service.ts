@@ -1,5 +1,9 @@
 import axios from 'axios';
-import { UserProfileSchema, type UpdateProfilePayload, type UserProfile } from '../domain/schemas/user';
+import {
+  UserProfileSchema,
+  type UpdateProfilePayload,
+  type UserProfile,
+} from '../domain/schemas/user';
 
 export const userService = {
   async getProfile(): Promise<UserProfile> {
@@ -9,5 +13,5 @@ export const userService = {
 
   async updateProfile(payload: UpdateProfilePayload): Promise<void> {
     await axios.put('/api/auth/users/me', payload);
-  }
+  },
 };

@@ -44,7 +44,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-            <Route
+          <Route
             path="/calendar"
             element={
               <ProtectedRoute>

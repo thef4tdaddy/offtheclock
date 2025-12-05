@@ -5,7 +5,12 @@ import { Clock } from 'lucide-react';
 import { formatHours } from '../utils/format';
 import { usePTOCategories } from '../hooks/api/usePTO';
 
-const CircularProgress: React.FC<{ value: number; max?: number; label: string; subLabel: string }> = ({ value, max = 100, label, subLabel }) => {
+const CircularProgress: React.FC<{
+  value: number;
+  max?: number;
+  label: string;
+  subLabel: string;
+}> = ({ value, max = 100, label, subLabel }) => {
   const radius = 60;
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(value / max, 1);
@@ -15,14 +20,7 @@ const CircularProgress: React.FC<{ value: number; max?: number; label: string; s
     <div className="flex flex-col items-center justify-center">
       <div className="relative w-[160px] h-[160px]">
         <svg width="160" height="160" className="transform -rotate-90">
-          <circle
-            cx="80"
-            cy="80"
-            r={radius}
-            stroke="#E0E0E0"
-            strokeWidth="12"
-            fill="transparent"
-          />
+          <circle cx="80" cy="80" r={radius} stroke="#E0E0E0" strokeWidth="12" fill="transparent" />
           <circle
             cx="80"
             cy="80"
@@ -49,7 +47,7 @@ const CircularProgress: React.FC<{ value: number; max?: number; label: string; s
 const Dashboard: React.FC = () => {
   const { data: categories = [], isLoading } = usePTOCategories();
   const [showLogModal, setShowLogModal] = useState(false);
-  
+
   if (isLoading) return <div className="p-8">Loading...</div>;
 
   return (
@@ -60,7 +58,7 @@ const Dashboard: React.FC = () => {
           <h2 className="text-2xl font-bold text-text-main">My Balances</h2>
           <p className="text-text-muted">Track your time off and accruals</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowLogModal(true)}
           className="bg-secondary hover:bg-secondary-dark text-white font-medium py-3 px-6 rounded-xl shadow-lg shadow-orange-100 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
         >
@@ -72,13 +70,16 @@ const Dashboard: React.FC = () => {
       {/* Balances Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {categories.map((cat) => (
-          <div key={cat.id} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden group hover:shadow-md transition-shadow">
+          <div
+            key={cat.id}
+            className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden group hover:shadow-md transition-shadow"
+          >
             <div className="absolute top-4 right-4 text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
               Cap: {cat.max_balance ? `${cat.max_balance}h` : '∞'}
             </div>
-            <CircularProgress 
-              value={cat.current_balance} 
-              max={cat.max_balance || 100} 
+            <CircularProgress
+              value={cat.current_balance}
+              max={cat.max_balance || 100}
               label="Balance"
               subLabel={cat.name}
             />
@@ -87,20 +88,20 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
         ))}
-        
       </div>
 
       {/* Forecast Section */}
       <Forecast />
 
       {/* Modals */}
-      <LogModal 
-        isOpen={showLogModal} 
-        onClose={() => setShowLogModal(false)} 
-        onSuccess={() => {/* Auto-invalidation handled by mutation */}}
+      <LogModal
+        isOpen={showLogModal}
+        onClose={() => setShowLogModal(false)}
+        onSuccess={() => {
+          /* Auto-invalidation handled by mutation */
+        }}
         categories={categories}
       />
-
     </div>
   );
 };

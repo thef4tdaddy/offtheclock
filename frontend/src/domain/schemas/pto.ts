@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-export const AccrualFrequencySchema = z.enum(['daily', 'weekly', 'biweekly', 'monthly', 'annually']);
+export const AccrualFrequencySchema = z.enum([
+  'daily',
+  'weekly',
+  'biweekly',
+  'monthly',
+  'annually',
+]);
 
 export const PTOCategorySchema = z.object({
   id: z.number(),
@@ -45,3 +51,19 @@ export type PTOCategory = z.infer<typeof PTOCategorySchema>;
 export type PTOLog = z.infer<typeof PTOLogSchema>;
 export type CreateCategoryPayload = z.infer<typeof CreateCategorySchema>;
 export type CreateLogPayload = z.infer<typeof CreateLogSchema>;
+// Amazon Preset Payload
+export const AmazonPresetPayloadSchema = z.object({
+  tenure_years: z.number().min(0),
+  shift_length: z.number().min(0),
+  shifts_per_week: z.number().min(0),
+  current_upt: z.number().optional(),
+  current_flex: z.number().optional(),
+  current_std: z.number().optional(),
+});
+export type AmazonPresetPayload = z.infer<typeof AmazonPresetPayloadSchema>;
+
+// Forecast Response (Array of Categories with projected balance)
+export const ForecastCategorySchema = PTOCategorySchema.extend({
+  current_balance: z.number(), // The endpoint returns "current_balance" as the projected one? No, Forecast.tsx uses current_balance field name
+});
+export type ForecastCategory = z.infer<typeof ForecastCategorySchema>;
