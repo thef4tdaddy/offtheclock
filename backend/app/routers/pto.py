@@ -15,13 +15,20 @@ router = APIRouter(
 
 
 def calculate_balance(category: models.PTOCategory, target_date: datetime) -> float:
-    # Simulation approach to handle caps correctly (lost accrual shouldn't be recovered instantly after usage)
+    # Safety Check: If start_date is missing, we cannot calculate accrual. Return 0 or starting balance.
+    if not category.start_date:
+        return float(category.starting_balance if category.starting_balance else 0.0)
 
-    current_date: datetime = category.start_date  # type: ignore
-    balance: float = float(category.starting_balance)
+    current_date: datetime = category.start_date
+    balance: float = float(
+        category.starting_balance if category.starting_balance else 0.0
+    )
+
+    # Safety Check: Ensure logs is iterable (though SQLAlchemy relationships usually are)
+    logs = category.logs if category.logs else []
 
     # Sort logs by date for processing
-    sorted_logs = sorted(category.logs, key=lambda x: x.date)
+    sorted_logs = sorted(logs, key=lambda x: x.date if x.date else datetime.min)
     log_idx = 0
 
     # Track yearly accrual for the cap
@@ -36,15 +43,23 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
     # Track last grant year to prevent double accrual in grant week
     last_grant_year = 0
 
+    # Safety clamp: Prevent infinite loops if target_date is absurdly far in future or logic fails
+    # Also prevent issues if current_date > target_date
+    if current_date > target_date:
+        return balance
+
     while current_date <= target_date:
         # 1. Apply Usage/Adjustments for this day
         # We process logs that happened ON this day (or up to this day if we skipped)
         while (
             log_idx < len(sorted_logs)
+            and sorted_logs[log_idx].date
             and sorted_logs[log_idx].date.date() <= current_date.date()
         ):
             # Apply log
-            balance += sorted_logs[log_idx].amount
+            balance += (
+                sorted_logs[log_idx].amount if sorted_logs[log_idx].amount else 0.0
+            )
             log_idx += 1
 
         # 2. Apply Accrual
@@ -52,24 +67,21 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
         should_accrue = False
 
         # Check for Annual Grant (Jan 1st)
-        if category.annual_grant_amount > 0:
+        if category.annual_grant_amount and category.annual_grant_amount > 0:
             if current_date.month == 1 and current_date.day == 1:
-                # Only grant if it's not the start date (unless start date is Jan 1 and we want it?
-                # Logic says "every Jan 1st". If start_date is Jan 1, we usually set starting_balance.
-                # Let's assume grants happen on Jan 1s strictly AFTER start_date to avoid double dipping with starting_balance.)
+                # Only grant if it's not the start date
                 if current_date > category.start_date:
                     balance += float(category.annual_grant_amount)
                     last_grant_year = current_date.year
-                    # Annual grants usually don't count towards "accrual" caps, they are grants.
 
         # Check for Period Accrual
         if category.accrual_frequency == models.AccrualFrequency.WEEKLY:
             if current_date.weekday() == 6:  # Sunday
                 # Special Rule: If we had a grant this year (Jan 1), and this is the first week of the year, skip accrual.
-                # Logic: If current_date is within 7 days of Jan 1st of the same year.
                 is_grant_week = False
                 if (
-                    category.annual_grant_amount > 0
+                    category.annual_grant_amount
+                    and category.annual_grant_amount > 0
                     and current_date.year == last_grant_year
                 ):
                     days_since_jan1 = (
@@ -78,22 +90,23 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
                     if days_since_jan1 < 7:
                         is_grant_week = True
 
-                if not is_grant_week:
+                if not is_grant_week and category.accrual_rate:
                     should_accrue = True
                     accrual_amount = float(category.accrual_rate)
 
         elif category.accrual_frequency == models.AccrualFrequency.BIWEEKLY:
             # Simple logic: every 14 days from start
             delta = (current_date - category.start_date).days
-            if delta > 0 and delta % 14 == 0:
+            if delta > 0 and delta % 14 == 0 and category.accrual_rate:
                 should_accrue = True
                 accrual_amount = float(category.accrual_rate)
 
         elif category.accrual_frequency == models.AccrualFrequency.MONTHLY:
-            # Accrue on 1st of month? or same day as start_date?
-            # Let's assume 1st of month for simplicity, or every 30 days.
-            # Standard is usually "pay period". Let's stick to 1st of month for now.
-            if current_date.day == 1 and current_date > category.start_date:
+            if (
+                current_date.day == 1
+                and current_date > category.start_date
+                and category.accrual_rate
+            ):
                 should_accrue = True
                 accrual_amount = float(category.accrual_rate)
 
@@ -102,6 +115,7 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
                 current_date.month == 1
                 and current_date.day == 1
                 and current_date > category.start_date
+                and category.accrual_rate
             ):
                 should_accrue = True
                 accrual_amount = float(category.accrual_rate)
@@ -128,7 +142,6 @@ def calculate_balance(category: models.PTOCategory, target_date: datetime) -> fl
             balance = float(category.max_balance)
 
         # Advance time
-        # Optimization: For weekly, we could jump to next Sunday or next log, but daily is safest for "Jan 1st" checks etc.
         current_date += timedelta(days=1)
 
     return float(balance)
