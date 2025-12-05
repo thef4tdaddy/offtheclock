@@ -59,10 +59,10 @@ class PTOCategoryBase(BaseModel):
     accrual_frequency: Optional[AccrualFrequency] = None
     max_balance: Optional[float] = None
     yearly_accrual_cap: Optional[float] = None
-    accrued_ytd: float = 0.0
-    annual_grant_amount: float = 0.0
+    accrued_ytd: Optional[float] = 0.0
+    annual_grant_amount: Optional[float] = 0.0
     start_date: Optional[datetime] = None
-    starting_balance: float = 0.0
+    starting_balance: Optional[float] = 0.0
 
 
 class PTOCategoryCreate(PTOCategoryBase):
