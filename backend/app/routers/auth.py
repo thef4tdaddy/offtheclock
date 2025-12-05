@@ -4,14 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
-from .. import database, models, schemas, security
+from .. import database, dependencies, models, schemas, security
 
 router = APIRouter(
     prefix="/api/auth",
     tags=["auth"],
 )
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token")
 
 
 @router.post("/register", response_model=schemas.User)
@@ -55,48 +53,18 @@ def login_for_access_token(
 
 @router.get("/users/me", response_model=schemas.User)
 def read_users_me(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> models.User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = security.decode_access_token(token)
-        if payload is None:
-            raise credentials_exception
-        username: str = payload.get("sub")  # type: ignore
-        if username is None:
-            raise credentials_exception
-    except Exception:
-        raise credentials_exception
-    user = db.query(models.User).filter(models.User.email == username).first()
-    if user is None:
-        raise credentials_exception
-    return user
+    return current_user
 
 
 @router.put("/users/me", response_model=schemas.User)
 def update_user_me(
     user_update: schemas.UserUpdate,
-    token: str = Depends(oauth2_scheme),
     db: Session = Depends(database.get_db),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ) -> models.User:
-    # Get current user (logic duplicated for now, ideally refactor to dependency)
-    try:
-        payload = security.decode_access_token(token)
-        if payload is None:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-        username: str = payload.get("sub")  # type: ignore
-        if username is None:
-            raise HTTPException(status_code=401, detail="Invalid credentials")
-    except Exception:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-
-    db_user = db.query(models.User).filter(models.User.email == username).first()
-    if not db_user:
-        raise HTTPException(status_code=404, detail="User not found")
+    db_user = current_user
 
     # Update fields
     if user_update.full_name is not None:
