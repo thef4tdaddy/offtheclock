@@ -14,14 +14,6 @@ router = APIRouter(
 )
 
 
-def get_db():
-    try:
-        db = database.SessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
 def calculate_upt_accrual(hours_worked: float) -> float:
     # Amazon Policy: 5 minutes UPT earned per hour worked
     # 5/60 = 0.08333... hours per hour
@@ -32,7 +24,7 @@ def calculate_upt_accrual(hours_worked: float) -> float:
 @router.post("/", response_model=schemas.Shift)
 def create_shift(
     shift: schemas.ShiftCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(database.get_db),
     current_user: models.User = Depends(dependencies.get_current_user),
 ):
     # Calculate duration
@@ -79,7 +71,7 @@ def create_shift(
 @router.post("/batch", response_model=List[schemas.Shift])
 def create_batch_shifts(
     shifts: List[schemas.ShiftCreate],
-    db: Session = Depends(get_db),
+    db: Session = Depends(database.get_db),
     current_user: models.User = Depends(dependencies.get_current_user),
 ):
     created_shifts = []
@@ -132,7 +124,7 @@ def create_batch_shifts(
 def read_shifts(
     skip: int = 0,
     limit: int = 100,
-    db: Session = Depends(get_db),
+    db: Session = Depends(database.get_db),
     current_user: models.User = Depends(dependencies.get_current_user),
 ):
     shifts = (
@@ -148,7 +140,7 @@ def read_shifts(
 @router.delete("/{shift_id}")
 def delete_shift(
     shift_id: int,
-    db: Session = Depends(get_db),
+    db: Session = Depends(database.get_db),
     current_user: models.User = Depends(dependencies.get_current_user),
 ):
     shift = (
