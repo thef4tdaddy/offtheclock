@@ -85,7 +85,7 @@ class TestCalculateBalanceBasics:
             name="No Start PTO",
             accrual_rate=2.0,
             accrual_frequency=AccrualFrequency.WEEKLY,
-            start_date=None,  # type: ignore
+            start_date=None,  # type: ignore - intentionally testing None case
             starting_balance=15.0,
         )
         db.add(category)
