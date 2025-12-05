@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.0](https://github.com/thef4tdaddy/offtheclock/compare/offtheclock-v0.1.0...offtheclock-v0.2.0) (2025-12-05)
+
+
+### Features
+
+* **arch:** implement service layer, hooks, and domain schemas ([38c101e](https://github.com/thef4tdaddy/offtheclock/commit/38c101e47a591550c4a9f86a95648470ef472bd1))
+
+
+### Bug Fixes
+
+* **frontend:** implement mobile hamburger menu ([0b92863](https://github.com/thef4tdaddy/offtheclock/commit/0b92863f800181f5f038f987cebe1c1b6b3f03ae))
+* **frontend:** improve mobile responsiveness ([f46da59](https://github.com/thef4tdaddy/offtheclock/commit/f46da59caab9d201fcc86f8902084b5b372fe2f8))
+* **pto:** automate flex pto ytd calculation ([fbb6ab8](https://github.com/thef4tdaddy/offtheclock/commit/fbb6ab834c01cb9ea3ad05755f756182f0f03861))
+
 ## 0.1.0 (2025-12-04)
 
 
