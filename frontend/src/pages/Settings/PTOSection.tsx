@@ -192,8 +192,8 @@ const PTOSection: React.FC = () => {
               type="submit"
               className={`px-8 py-3 text-white rounded-xl font-medium shadow-lg transition-all ${
                 editingId
-                  ? 'bg-secondary hover:bg-secondary-dark shadow-orange-100'
-                  : 'bg-primary hover:bg-primary-dark shadow-cyan-100'
+                  ? 'bg-secondary hover:bg-secondary-dark shadow-secondary/20'
+                  : 'bg-primary hover:bg-primary-dark shadow-primary/20'
               }`}
             >
               {editingId ? 'Update Category' : 'Create Category'}

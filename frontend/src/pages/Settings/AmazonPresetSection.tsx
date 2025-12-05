@@ -78,14 +78,14 @@ const AmazonPresetSection: React.FC = () => {
         Amazon PTO Presets
       </h2>
 
-      <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 mb-6 flex items-start gap-3">
-        <AlertTriangle className="text-orange-500 shrink-0 mt-0.5" size={20} />
+      <div className="bg-accent/10 border border-accent/20 rounded-xl p-4 mb-6 flex items-start gap-3">
+        <AlertTriangle className="text-accent shrink-0 mt-0.5" size={20} />
         <div>
-          <h3 className="font-bold text-orange-800 text-sm">Quick Setup</h3>
-          <p className="text-sm text-orange-700 mt-1">
+          <h3 className="font-bold text-accent text-sm">Quick Setup</h3>
+          <p className="text-sm text-accent/80 mt-1">
             Automatically configure your account with standard Amazon policies:
           </p>
-          <ul className="text-sm text-orange-700 list-disc list-inside mt-1 ml-1 space-y-1">
+          <ul className="text-sm text-accent/80 list-disc list-inside mt-1 ml-1 space-y-1">
             <li>
               <strong>UPT</strong>: 80h Cap (Calculated based on your shift)
             </li>

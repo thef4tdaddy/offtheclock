@@ -165,7 +165,7 @@ const LogModal: React.FC<LogModalProps> = ({
             type="submit"
             fullWidth
             variant={isUsage ? 'primary' : 'secondary'}
-            className={`py-3 ${isUsage ? 'shadow-orange-100' : 'shadow-gray-200'}`}
+            className="py-3"
           >
             {isUsage ? 'Log Time Off' : 'Add Adjustment'}
           </Button>
