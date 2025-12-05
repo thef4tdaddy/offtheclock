@@ -16,7 +16,13 @@ describe('generateRecurringShifts', () => {
     const endTime = '17:00';
     const duration = 1; // 1 year
 
-    const shifts = generateRecurringShifts(selectedDays, startTime, endTime, startDate, duration);
+    const shifts = generateRecurringShifts(
+      selectedDays,
+      startTime,
+      endTime,
+      new Date(startDate),
+      duration,
+    );
 
     expect(shifts.length).toBeGreaterThan(150); // Roughly 3 * 52 = 156
 
@@ -37,7 +43,13 @@ describe('generateRecurringShifts', () => {
     const startTime = '22:00';
     const endTime = '06:00';
 
-    const shifts = generateRecurringShifts(selectedDays, startTime, endTime, startDate, 1);
+    const shifts = generateRecurringShifts(
+      selectedDays,
+      startTime,
+      endTime,
+      new Date(startDate),
+      1,
+    );
 
     const firstShift = shifts[0];
     // Start: Mon 22:00
