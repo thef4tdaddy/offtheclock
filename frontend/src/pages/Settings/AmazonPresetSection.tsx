@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Package, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useApplyAmazonPresetMutation } from '../../hooks/api/usePTOMutation';
 import Button from '../../components/common/Button';
+import ShiftModal from '../../components/ShiftModal';
 
 const AmazonPresetSection: React.FC = () => {
   // Use strings for inputs to allow empty state and better typing experience
@@ -49,6 +50,10 @@ const AmazonPresetSection: React.FC = () => {
 
   const { mutate: applyPreset, isPending: isSubmitting } = useApplyAmazonPresetMutation();
 
+  // Add simple state for schedule creation
+  const [createSchedule, setCreateSchedule] = useState(true);
+  const [showShiftModal, setShowShiftModal] = useState(false);
+
   const handleLoadPresets = () => {
     if (!confirm('This will add Amazon default PTO categories to your account. Continue?')) return;
 
@@ -63,8 +68,13 @@ const AmazonPresetSection: React.FC = () => {
       },
       {
         onSuccess: () => {
-          alert('Amazon PTO presets loaded successfully!');
-          window.location.reload();
+          if (createSchedule) {
+            alert("Amazon PTO presets loaded! Now let's set up your schedule.");
+            setShowShiftModal(true);
+          } else {
+            alert('Amazon PTO presets loaded successfully!');
+            window.location.reload();
+          }
         },
         onError: () => alert('Failed to load presets. Please try again.'),
       },
@@ -139,6 +149,24 @@ const AmazonPresetSection: React.FC = () => {
           />
         </div>
 
+        <div className="md:col-span-3">
+          <div className="flex items-center gap-2 mb-4 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+            <input
+              type="checkbox"
+              id="createSchedule"
+              checked={createSchedule}
+              onChange={(e) => setCreateSchedule(e.target.checked)}
+              className="w-5 h-5 text-primary rounded focus:ring-primary"
+            />
+            <label
+              htmlFor="createSchedule"
+              className="text-sm text-blue-800 font-medium cursor-pointer"
+            >
+              Pop out schedule creator after loading presets
+            </label>
+          </div>
+        </div>
+
         {/* Current Balances */}
         <div>
           <label className="block text-sm font-medium text-text-muted mb-1">
@@ -191,6 +219,19 @@ const AmazonPresetSection: React.FC = () => {
           {isSubmitting && 'Loading...'}
         </Button>
       </div>
+
+      <ShiftModal
+        isOpen={showShiftModal}
+        onClose={() => {
+          setShowShiftModal(false);
+          window.location.reload();
+        }}
+        initialMode="recurring"
+        userPreferences={{
+          shift_length: parseFloat(shiftLength),
+          shifts_per_week: parseInt(shiftsPerWeek),
+        }}
+      />
     </div>
   );
 };

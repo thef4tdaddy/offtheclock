@@ -97,6 +97,7 @@ class ShiftCreate(ShiftBase):
 class Shift(ShiftBase):
     id: int
     user_id: int
+    series_id: Optional[str] = None
     upt_log_id: Optional[int] = None
 
     class Config:
