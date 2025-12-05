@@ -1,50 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import LogModal from '../components/LogModal';
 import { formatHours } from '../utils/format';
-
-interface PTOLog {
-  id: number;
-  category_id: number;
-  date: string;
-  amount: number;
-  note?: string;
-}
-
-interface PTOCategory {
-  id: number;
-  name: string;
-}
+import { usePTOLogs, usePTOCategories } from '../hooks/api/usePTO';
+import { useDeleteLogMutation } from '../hooks/api/usePTOMutation';
 
 const Calendar: React.FC = () => {
-  const [logs, setLogs] = useState<PTOLog[]>([]);
-  const [categories, setCategories] = useState<PTOCategory[]>([]);
+  const { data: logs = [], isLoading: logsLoading } = usePTOLogs();
+  const { data: categories = [], isLoading: catsLoading } = usePTOCategories();
+  const { mutate: deleteLog } = useDeleteLogMutation();
+  
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [loading, setLoading] = useState(true);
   
   // Modal State
   const [showLogModal, setShowLogModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>('');
 
-  const fetchData = async () => {
-    try {
-      const [logsRes, catsRes] = await Promise.all([
-        axios.get('/api/pto/logs'),
-        axios.get('/api/pto/categories')
-      ]);
-      setLogs(logsRes.data);
-      setCategories(catsRes.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const loading = logsLoading || catsLoading;
 
   const handleDayClick = (dateStr: string) => {
     setSelectedDate(dateStr);
@@ -71,17 +43,13 @@ const Calendar: React.FC = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
-  const handleDeleteLog = async (e: React.MouseEvent, logId: number) => {
+  const handleDeleteLog = (e: React.MouseEvent, logId: number) => {
     e.stopPropagation(); // Prevent opening the modal
     if (!confirm('Are you sure you want to delete this log?')) return;
 
-    try {
-      await axios.delete(`/api/pto/logs/${logId}`);
-      fetchData(); // Refresh data
-    } catch (err) {
-      console.error(err);
-      alert('Failed to delete log');
-    }
+    deleteLog(logId, {
+      onError: () => alert('Failed to delete log')
+    });
   };
 
   const renderCalendarDays = () => {
@@ -187,7 +155,7 @@ const Calendar: React.FC = () => {
       <LogModal 
         isOpen={showLogModal} 
         onClose={() => setShowLogModal(false)} 
-        onSuccess={fetchData}
+        onSuccess={() => {/* Auto-invalidation handled by mutation */}}
         initialDate={selectedDate}
         categories={categories}
       />

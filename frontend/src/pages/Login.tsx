@@ -1,34 +1,35 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useLoginMutation } from '../hooks/api/useAuthMutation';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  
   const { login } = useAuth();
   const navigate = useNavigate();
+  
+  const { mutate: loginMutate, isPending } = useLoginMutation();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    try {
-      const formData = new URLSearchParams();
-      formData.append('username', email);
-      formData.append('password', password);
 
-      const response = await axios.post('/api/auth/token', formData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+    loginMutate(
+      { username: email, password },
+      {
+        onSuccess: (data) => {
+          login(data.access_token);
+          navigate('/');
         },
-      });
-      login(response.data.access_token);
-      navigate('/');
-    } catch (err) {
-      setError('Invalid email or password');
-      console.error(err);
-    }
+        onError: (err) => {
+          console.error(err);
+          setError('Invalid email or password');
+        },
+      }
+    );
   };
 
   return (
@@ -45,6 +46,7 @@ const Login: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isPending}
             />
           </div>
           <div className="mb-6">
@@ -55,13 +57,17 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isPending}
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition-colors"
+            disabled={isPending}
+            className={`w-full text-white p-2 rounded transition-colors ${
+              isPending ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
+            }`}
           >
-            Login
+            {isPending ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>

@@ -1,19 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import Forecast from '../components/Forecast';
 import LogModal from '../components/LogModal';
 import { Clock } from 'lucide-react';
 import { formatHours } from '../utils/format';
-
-interface PTOCategory {
-  id: number;
-  name: string;
-  accrual_rate: number;
-  accrual_frequency: string;
-  current_balance: number;
-  starting_balance: number;
-  max_balance?: number;
-}
+import { usePTOCategories } from '../hooks/api/usePTO';
 
 const CircularProgress: React.FC<{ value: number; max?: number; label: string; subLabel: string }> = ({ value, max = 100, label, subLabel }) => {
   const radius = 60;
@@ -57,26 +47,10 @@ const CircularProgress: React.FC<{ value: number; max?: number; label: string; s
 };
 
 const Dashboard: React.FC = () => {
-  const [categories, setCategories] = useState<PTOCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: categories = [], isLoading } = usePTOCategories();
   const [showLogModal, setShowLogModal] = useState(false);
   
-  const fetchCategories = async () => {
-    try {
-      const res = await axios.get('/api/pto/categories');
-      setCategories(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (isLoading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="space-y-8">
@@ -100,7 +74,7 @@ const Dashboard: React.FC = () => {
         {categories.map((cat) => (
           <div key={cat.id} className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 flex flex-col items-center justify-center relative overflow-hidden group hover:shadow-md transition-shadow">
             <div className="absolute top-4 right-4 text-xs font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
-              Cap: {cat.max_balance || '∞'}h
+              Cap: {cat.max_balance ? `${cat.max_balance}h` : '∞'}
             </div>
             <CircularProgress 
               value={cat.current_balance} 
@@ -123,7 +97,7 @@ const Dashboard: React.FC = () => {
       <LogModal 
         isOpen={showLogModal} 
         onClose={() => setShowLogModal(false)} 
-        onSuccess={fetchCategories}
+        onSuccess={() => {/* Auto-invalidation handled by mutation */}}
         categories={categories}
       />
 

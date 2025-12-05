@@ -1,12 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format, addDays, differenceInDays } from 'date-fns';
 import { TrendingUp, Calendar as CalendarIcon } from 'lucide-react';
+import { usePTOCategories } from '../../hooks/api/usePTO';
+import { type PTOCategory } from '../../domain/schemas/pto';
 
-// Types matching backend models
-type AccrualFrequency = "daily" | "weekly" | "biweekly" | "monthly" | "annually";
+// Simulated internal type to extend the schema with simulation props
+interface SimulatedCategory extends PTOCategory {
+  simBalance: number;
+  yearlyAccrued: number;
+}
 
 const AccrualFrequency = {
   DAILY: "daily",
@@ -16,41 +19,14 @@ const AccrualFrequency = {
   ANNUALLY: "annually"
 } as const;
 
-interface PTOLog {
-  id: number;
-  date: string;
-  amount: number;
-}
-
-interface PTOCategory {
-  id: number;
-  name: string;
-  accrual_rate: number;
-  accrual_frequency: AccrualFrequency;
-  max_balance?: number;
-  yearly_accrual_cap?: number;
-  annual_grant_amount?: number;
-  accrued_ytd?: number;
-  start_date: string;
-  starting_balance: number;
-  current_balance: number;
-  logs?: PTOLog[];
-}
-
 const ProjectionsPage: React.FC = () => {
   const [projectionDays, setProjectionDays] = useState(180); // Default 6 months
 
-  const { data: categories, isLoading } = useQuery<PTOCategory[]>({
-    queryKey: ['ptoCategories'],
-    queryFn: async () => {
-      const res = await axios.get('/api/pto/categories');
-      return res.data;
-    },
-  });
+  const { data: categories = [], isLoading } = usePTOCategories();
 
   // Client-side simulation logic
   const chartData = useMemo(() => {
-    if (!categories) return [];
+    if (!categories.length) return [];
 
     const data: Array<{ date: string; fullDate: string; [key: string]: string | number }> = [];
     const today = new Date();
@@ -62,7 +38,7 @@ const ProjectionsPage: React.FC = () => {
     let currentYear = currentSimDate.getFullYear();
     
     // State for each category
-    const catStates = categories.map(cat => ({
+    const catStates: SimulatedCategory[] = categories.map(cat => ({
       ...cat,
       simBalance: cat.current_balance,
       // We ideally need accrued_ytd from backend to be perfect. 

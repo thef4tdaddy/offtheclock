@@ -1,21 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
 import { formatHours, parseDuration } from '../../utils/format';
-
-interface PTOCategory {
-  id: number;
-  name: string;
-  accrual_rate: number;
-  accrual_frequency: string;
-  max_balance?: number;
-  start_date: string;
-  starting_balance: number;
-}
+import { usePTOCategories } from '../../hooks/api/usePTO';
+import { useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } from '../../hooks/api/usePTOMutation';
+import { type PTOCategory } from '../../domain/schemas/pto';
 
 const PTOSection: React.FC = () => {
-  const [categories, setCategories] = useState<PTOCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: categories = [], isLoading } = usePTOCategories();
+  const { mutate: createCategory } = useCreateCategoryMutation();
+  const { mutate: updateCategory } = useUpdateCategoryMutation();
+  const { mutate: deleteCategory } = useDeleteCategoryMutation();
 
   // Form State
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -26,22 +20,7 @@ const PTOSection: React.FC = () => {
   const [newCatInitial, setNewCatInitial] = useState('0');
   const [newCatMax, setNewCatMax] = useState('');
 
-  const fetchCategories = async () => {
-    try {
-      const res = await axios.get('/api/pto/categories');
-      setCategories(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const handleCreateSubmit = async (e: React.FormEvent) => {
+  const handleCreateSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Parse inputs
@@ -54,36 +33,37 @@ const PTOSection: React.FC = () => {
       return;
     }
 
-    try {
-      const payload = {
-        name: newCatName,
-        accrual_rate: rate,
-        accrual_frequency: newCatFreq,
-        start_date: new Date(newCatStart).toISOString(),
-        starting_balance: initial,
-        max_balance: max
-      };
+    const payload = {
+      name: newCatName,
+      accrual_rate: rate,
+      accrual_frequency: newCatFreq,
+      start_date: new Date(newCatStart).toISOString(),
+      starting_balance: initial,
+      max_balance: max
+    };
 
-      if (editingId) {
-        await axios.put(`/api/pto/categories/${editingId}`, payload);
-        alert('Category updated successfully!');
-      } else {
-        await axios.post('/api/pto/categories', payload);
-        alert('Category created successfully!');
-      }
-      
-      // Reset form
-      setEditingId(null);
-      setNewCatName('');
-      setNewCatRate('');
-      setNewCatInitial('0');
-      setNewCatMax('');
-      setNewCatStart(new Date().toISOString().split('T')[0]);
-      fetchCategories();
-    } catch (err) {
-      console.error(err);
-      alert(`Failed to ${editingId ? 'update' : 'create'} category`);
+    const options = {
+      onSuccess: () => {
+        alert(editingId ? 'Category updated successfully!' : 'Category created successfully!');
+        resetForm();
+      },
+      onError: () => alert(`Failed to ${editingId ? 'update' : 'create'} category`)
+    };
+
+    if (editingId) {
+      updateCategory({ id: editingId, payload }, options);
+    } else {
+      createCategory(payload, options);
     }
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setNewCatName('');
+    setNewCatRate('');
+    setNewCatInitial('0');
+    setNewCatMax('');
+    setNewCatStart(new Date().toISOString().split('T')[0]);
   };
 
   const handleEdit = (cat: PTOCategory) => {
@@ -94,31 +74,20 @@ const PTOSection: React.FC = () => {
     setNewCatStart(cat.start_date.split('T')[0]);
     setNewCatInitial(formatHours(cat.starting_balance));
     setNewCatMax(cat.max_balance ? formatHours(cat.max_balance) : '');
-    
-    // Scroll to form (optional, might need adjustment in new layout)
-    // window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = (id: number) => {
     if (!confirm('Are you sure you want to delete this category? This action cannot be undone.')) return;
     
-    try {
-      await axios.delete(`/api/pto/categories/${id}`);
-      setCategories(categories.filter(c => c.id !== id));
-      if (editingId === id) {
-        setEditingId(null);
-        setNewCatName('');
-        setNewCatRate('');
-        setNewCatInitial('0');
-        setNewCatMax('');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Failed to delete category');
-    }
+    deleteCategory(id, {
+      onSuccess: () => {
+        if (editingId === id) resetForm();
+      },
+      onError: () => alert('Failed to delete category')
+    });
   };
 
-  if (loading) return <div className="p-8">Loading...</div>;
+  if (isLoading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="space-y-8">
@@ -200,14 +169,7 @@ const PTOSection: React.FC = () => {
             {editingId && (
               <button 
                 type="button"
-                onClick={() => {
-                  setEditingId(null);
-                  setNewCatName('');
-                  setNewCatRate('');
-                  setNewCatInitial('0');
-                  setNewCatMax('');
-                  setNewCatStart(new Date().toISOString().split('T')[0]);
-                }}
+                onClick={resetForm}
                 className="px-8 py-3 text-text-muted hover:bg-gray-50 rounded-xl font-medium transition-colors"
               >
                 Cancel

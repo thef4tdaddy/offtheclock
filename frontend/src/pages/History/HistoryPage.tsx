@@ -1,47 +1,19 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { Filter, Calendar, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
-
-interface PTOLog {
-  id: number;
-  category_id: number;
-  date: string;
-  amount: number;
-  note?: string;
-  created_at: string;
-}
-
-interface PTOCategory {
-  id: number;
-  name: string;
-}
+import { usePTOLogs, usePTOCategories } from '../../hooks/api/usePTO';
 
 const HistoryPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  const { data: logs, isLoading: logsLoading } = useQuery<PTOLog[]>({
-    queryKey: ['ptoLogs'],
-    queryFn: async () => {
-      const res = await axios.get('/api/pto/logs');
-      return res.data;
-    },
-  });
-
-  const { data: categories, isLoading: catsLoading } = useQuery<PTOCategory[]>({
-    queryKey: ['ptoCategories'],
-    queryFn: async () => {
-      const res = await axios.get('/api/pto/categories');
-      return res.data;
-    },
-  });
+  const { data: logs = [], isLoading: logsLoading } = usePTOLogs();
+  const { data: categories = [], isLoading: catsLoading } = usePTOCategories();
 
   const getCategoryName = (id: number) => {
-    return categories?.find(c => c.id === id)?.name || 'Unknown';
+    return categories.find(c => c.id === id)?.name || 'Unknown';
   };
 
-  const filteredLogs = logs?.filter(log => {
+  const filteredLogs = logs.filter(log => {
     if (selectedCategory === 'all') return true;
     return log.category_id === Number(selectedCategory);
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Sort descending
@@ -64,7 +36,7 @@ const HistoryPage: React.FC = () => {
             onChange={(e) => setSelectedCategory(e.target.value)}
           >
             <option value="all">All Categories</option>
-            {categories?.map(cat => (
+            {categories.map(cat => (
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
@@ -84,12 +56,12 @@ const HistoryPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filteredLogs?.length === 0 ? (
+              {filteredLogs.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-8 text-center text-gray-500">No logs found.</td>
                 </tr>
               ) : (
-                filteredLogs?.map(log => (
+                filteredLogs.map(log => (
                   <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
                     <td className="py-4 px-6 text-sm text-gray-900 font-medium">
                       {format(new Date(log.date), 'MMM d, yyyy')}

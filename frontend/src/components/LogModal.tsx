@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { X } from 'lucide-react';
 import { parseDuration } from '../utils/format';
-
-interface PTOCategory {
-  id: number;
-  name: string;
-}
+import { useCreateLogMutation } from '../hooks/api/usePTOMutation';
+import { type PTOCategory } from '../domain/schemas/pto';
 
 interface LogModalProps {
   isOpen: boolean;
@@ -23,6 +19,8 @@ const LogModal: React.FC<LogModalProps> = ({ isOpen, onClose, onSuccess, initial
   const [note, setNote] = useState('');
   const [isUsage, setIsUsage] = useState(true); // Toggle between Usage (negative) and Adjustment (positive)
 
+  const { mutate: createLog } = useCreateLogMutation();
+
   useEffect(() => {
     if (isOpen) {
       setDate(initialDate || new Date().toISOString().split('T')[0]);
@@ -36,7 +34,7 @@ const LogModal: React.FC<LogModalProps> = ({ isOpen, onClose, onSuccess, initial
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, initialDate, categories]);
 
-  const handleLogSubmit = async (e: React.FormEvent) => {
+  const handleLogSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const duration = parseDuration(amount);
@@ -48,19 +46,18 @@ const LogModal: React.FC<LogModalProps> = ({ isOpen, onClose, onSuccess, initial
     // If it's usage, make it negative. If adjustment, keep positive.
     const finalAmount = isUsage ? -Math.abs(duration) : Math.abs(duration);
 
-    try {
-      await axios.post('/api/pto/log', {
-        category_id: parseInt(categoryId),
-        date: new Date(date).toISOString(),
-        amount: finalAmount,
-        note
-      });
-      onSuccess();
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to log PTO');
-    }
+    createLog({
+      category_id: parseInt(categoryId),
+      date: new Date(date).toISOString(),
+      amount: finalAmount,
+      note
+    }, {
+      onSuccess: () => {
+        onSuccess();
+        onClose();
+      },
+      onError: () => alert('Failed to log PTO')
+    });
   };
 
   if (!isOpen) return null;

@@ -1,54 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { User, Save } from 'lucide-react';
-
-interface UserProfile {
-  email: string;
-  full_name?: string;
-  employer?: string;
-  avatar_url?: string;
-}
+import { useUserProfile, useUpdateProfileMutation } from '../../hooks/api/useUser';
 
 const ProfileSection: React.FC = () => {
-  const [profile, setProfile] = useState<UserProfile>({ email: '' });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+  const { data: profileData, isLoading } = useUserProfile();
+  const { mutate: updateProfile, isPending: saving } = useUpdateProfileMutation();
+
+  // Initialize state only when data is first available or changes
+  const [localProfile, setLocalProfile] = useState({ 
+    full_name: '', 
+    employer: '', 
+    avatar_url: '' 
+  });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await axios.get('/api/auth/users/me');
-        setProfile(res.data);
-      } catch (err) {
-        console.error('Failed to fetch profile', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      await axios.put('/api/auth/users/me', {
-        full_name: profile.full_name,
-        employer: profile.employer,
-        avatar_url: profile.avatar_url
+    if (profileData) {
+      setLocalProfile(prev => {
+        // Only update if changes to avoid loop/overhead
+        if (
+          prev.full_name === profileData.full_name && 
+          prev.employer === profileData.employer && 
+          prev.avatar_url === profileData.avatar_url
+        ) {
+          return prev;
+        }
+        return {
+          full_name: profileData.full_name || '',
+          employer: profileData.employer || '',
+          avatar_url: profileData.avatar_url || ''
+        };
       });
-      alert('Profile updated successfully!');
-      // Force a reload to update the header (simple solution for now)
-      window.location.reload(); 
-    } catch (err) {
-      console.error('Failed to update profile', err);
-      alert('Failed to update profile');
-    } finally {
-      setSaving(false);
     }
+  }, [profileData]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateProfile(localProfile, {
+      onSuccess: () => {
+        alert('Profile updated successfully!');
+        window.location.reload(); // Simple reload to refresh header context
+      },
+      onError: () => alert('Failed to update profile')
+    });
   };
 
-  if (loading) return <div>Loading profile...</div>;
+  if (isLoading) return <div>Loading profile...</div>;
 
   return (
     <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
@@ -63,8 +59,8 @@ const ProfileSection: React.FC = () => {
             <input 
               type="text" 
               className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-              value={profile.full_name || ''}
-              onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
+              value={localProfile.full_name}
+              onChange={(e) => setLocalProfile({ ...localProfile, full_name: e.target.value })}
               placeholder="e.g. John Doe"
             />
           </div>
@@ -73,8 +69,8 @@ const ProfileSection: React.FC = () => {
             <input 
               type="text" 
               className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-              value={profile.employer || ''}
-              onChange={(e) => setProfile({ ...profile, employer: e.target.value })}
+              value={localProfile.employer}
+              onChange={(e) => setLocalProfile({ ...localProfile, employer: e.target.value })}
               placeholder="e.g. Amazon"
             />
           </div>
@@ -83,8 +79,8 @@ const ProfileSection: React.FC = () => {
             <input 
               type="text" 
               className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
-              value={profile.avatar_url || ''}
-              onChange={(e) => setProfile({ ...profile, avatar_url: e.target.value })}
+              value={localProfile.avatar_url}
+              onChange={(e) => setLocalProfile({ ...localProfile, avatar_url: e.target.value })}
               placeholder="https://example.com/avatar.jpg"
             />
             <p className="text-xs text-text-muted mt-1">Enter a direct link to an image.</p>
