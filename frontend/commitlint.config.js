@@ -1,3 +1,3 @@
-export default {
-  extends: ['@commitlint/config-conventional'],
-};
+import config from './configs/commitlint/config.js';
+
+export default config;

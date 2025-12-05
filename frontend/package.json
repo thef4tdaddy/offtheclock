@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "eslint . && npm run check-root",
+    "check-root": "node scripts/enforce-root.js",
     "format": "prettier --write .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
