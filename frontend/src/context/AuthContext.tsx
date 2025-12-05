@@ -29,12 +29,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [token]);
 
-  const login = (newToken: string) => {
-    setToken(newToken);
-  };
-
   const logout = () => {
     setToken(null);
+  };
+
+  // Add interceptor to handle 401s automatically
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          logout();
+        }
+        return Promise.reject(error);
+      },
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
+
+  const login = (newToken: string) => {
+    setToken(newToken);
   };
 
   return (

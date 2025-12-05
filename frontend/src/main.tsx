@@ -8,7 +8,17 @@ import App from './App.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <PersistQueryClientProvider client={queryClient} persistOptions={{ persister: idbPersister }}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={{
+        persister: idbPersister,
+        dehydrateOptions: {
+          shouldDehydrateQuery: (query) => {
+            return query.state.status === 'success';
+          },
+        },
+      }}
+    >
       <App />
       <ReactQueryDevtools initialIsOpen={false} />
     </PersistQueryClientProvider>
