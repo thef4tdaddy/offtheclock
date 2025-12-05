@@ -133,7 +133,7 @@ def read_shifts(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(security.get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ):
     shifts = (
         db.query(models.Shift)
@@ -149,7 +149,7 @@ def read_shifts(
 def delete_shift(
     shift_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(security.get_current_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ):
     shift = (
         db.query(models.Shift)
