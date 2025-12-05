@@ -32,8 +32,6 @@ class User(Base):  # type: ignore
     employer = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
 
-    avatar_url = Column(String, nullable=True)
-
     # Shift Preferences
     shift_length = Column(Float, default=10.0)
     shifts_per_week = Column(Integer, default=4)
