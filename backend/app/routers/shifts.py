@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from .. import database, models, schemas, security
+from .. import database, dependencies, models, schemas, security
 
 router = APIRouter(
     prefix="/shifts",
@@ -25,7 +25,7 @@ def calculate_upt_accrual(hours_worked: float) -> float:
 def create_shift(
     shift: schemas.ShiftCreate,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(security.get_current_active_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ):
     # Calculate duration
     duration = (shift.end_time - shift.start_time).total_seconds() / 3600.0
@@ -72,7 +72,7 @@ def create_shift(
 def create_batch_shifts(
     shifts: List[schemas.ShiftCreate],
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(security.get_current_active_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ):
     created_shifts = []
 
@@ -125,7 +125,7 @@ def read_shifts(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(security.get_current_active_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ):
     shifts = (
         db.query(models.Shift)
@@ -141,7 +141,7 @@ def read_shifts(
 def delete_shift(
     shift_id: int,
     db: Session = Depends(database.get_db),
-    current_user: models.User = Depends(security.get_current_active_user),
+    current_user: models.User = Depends(dependencies.get_current_user),
 ):
     shift = (
         db.query(models.Shift)

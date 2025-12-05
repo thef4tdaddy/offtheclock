@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0](https://github.com/thef4tdaddy/offtheclock/compare/offtheclock-v0.2.0...offtheclock-v0.3.0) (2025-12-05)
+
+
+### Features
+
+* **schedule:** implement shift scheduling and auto-upt accrual ([4f564b7](https://github.com/thef4tdaddy/offtheclock/commit/4f564b71694bc09cc298793899b3b8a2315b4867))
+* **ui:** implement UI/UX enhancements and Button component ([723770d](https://github.com/thef4tdaddy/offtheclock/commit/723770d7462f42d355ced547099747cf841a1ee4))
+
+
+### Bug Fixes
+
+* **assets:** remove vite.svg and sidebar icon to .ico ([c1c419a](https://github.com/thef4tdaddy/offtheclock/commit/c1c419a01db14cb47e3ad0045f3b71267c845ec1))
+* **css:** remove legacy tailwind js config to unleash v4 css-first config ([2411e6b](https://github.com/thef4tdaddy/offtheclock/commit/2411e6b85900b9f05e7c30323a54fc67da4d4322))
+* **css:** restore missing css variables and migrate to tailwind v4 [@theme](https://github.com/theme) ([3678fcf](https://github.com/thef4tdaddy/offtheclock/commit/3678fcf1cf18302d7313f1bb367e9d105f75dfe8))
+* **runtime:** resolve DataCloneError and basic auth loop ([68e9aaa](https://github.com/thef4tdaddy/offtheclock/commit/68e9aaa7b190c0a394eccedb5b991e4ec36f19c7))
+* **ui:** apply new Teal/Orange color palette and resolve inconsistencies ([98bb925](https://github.com/thef4tdaddy/offtheclock/commit/98bb9251740abfca35626d8659b7c0212d932638))
+* **ui:** apply requested color palette and typography polish ([7d7fe31](https://github.com/thef4tdaddy/offtheclock/commit/7d7fe31f2119f478f1268bbd04850771aec8def4))
+* **ui:** restore css colors and improve dev experience ([a257a77](https://github.com/thef4tdaddy/offtheclock/commit/a257a77514a06ed90b5877f1295afbe71687942a))
+
 ## [0.2.0](https://github.com/thef4tdaddy/offtheclock/compare/offtheclock-v0.1.0...offtheclock-v0.2.0) (2025-12-05)
 
 
