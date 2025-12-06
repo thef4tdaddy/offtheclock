@@ -6,15 +6,36 @@ import Settings from './pages/Settings';
 import Calendar from './pages/Calendar';
 import HistoryPage from './pages/History/HistoryPage';
 import ProjectionsPage from './pages/Projections/ProjectionsPage';
+import AdminPage from './pages/Admin';
 import './App.css';
 
 import Layout from './components/Layout';
+import { useUser } from './hooks/api/useUser';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { token } = useAuth();
   if (!token) {
     return <Navigate to="/login" />;
   }
+  return <>{children}</>;
+};
+
+const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { token } = useAuth();
+  const { data: user, isLoading } = useUser();
+
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (user?.role !== 'admin') {
+    return <Navigate to="/" />;
+  }
+
   return <>{children}</>;
 };
 
@@ -72,6 +93,16 @@ function App() {
                   <ProjectionsPage />
                 </Layout>
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <Layout>
+                  <AdminPage />
+                </Layout>
+              </AdminRoute>
             }
           />
         </Routes>
