@@ -193,6 +193,7 @@ const Calendar: React.FC = () => {
                     : 'bg-green-100 text-green-700 border border-green-200'
                 }`}
                 title={`${log.note || 'No note'} (${log.amount}h)`}
+                data-testid="calendar-log"
               >
                 <span className="truncate mr-1">
                   {log.amount > 0 ? '+' : ''}
@@ -296,7 +297,7 @@ const Calendar: React.FC = () => {
       />
 
       <ShiftModal
-        key={showShiftModal ? `open-${modalInitialDate}-${user?.email || 'loading'}` : 'closed'}
+        key={showShiftModal ? 'open' : 'closed'}
         isOpen={showShiftModal}
         onClose={() => setShowShiftModal(false)}
         initialDate={modalInitialDate}

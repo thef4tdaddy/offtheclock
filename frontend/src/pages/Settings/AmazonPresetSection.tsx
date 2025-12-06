@@ -169,10 +169,11 @@ const AmazonPresetSection: React.FC = () => {
 
         {/* Current Balances */}
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label htmlFor="currentUpt" className="block text-sm font-medium text-text-muted mb-1">
             Current UPT Balance
           </label>
           <input
+            id="currentUpt"
             type="text"
             placeholder="e.g. 10 or 5h22m"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
@@ -181,10 +182,11 @@ const AmazonPresetSection: React.FC = () => {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label htmlFor="currentFlex" className="block text-sm font-medium text-text-muted mb-1">
             Current Flex Balance
           </label>
           <input
+            id="currentFlex"
             type="text"
             placeholder="e.g. 10 or 5h22m"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
@@ -194,10 +196,11 @@ const AmazonPresetSection: React.FC = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-text-muted mb-1">
+          <label htmlFor="currentStd" className="block text-sm font-medium text-text-muted mb-1">
             Current Vacation Balance
           </label>
           <input
+            id="currentStd"
             type="text"
             placeholder="e.g. 40 or 5h22m"
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"

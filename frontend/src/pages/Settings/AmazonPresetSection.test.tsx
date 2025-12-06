@@ -117,11 +117,9 @@ describe('AmazonPresetSection', () => {
 
     it('allows entering current UPT balance', async () => {
       const user = userEvent.setup();
-      const { container } = render(<AmazonPresetSection />);
+      render(<AmazonPresetSection />);
 
-      const uptInput = container.querySelector(
-        'input[placeholder*="10 or 5h22m"]',
-      ) as HTMLInputElement;
+      const uptInput = screen.getByLabelText(/current upt balance/i) as HTMLInputElement;
       await user.type(uptInput, '40');
 
       expect(uptInput.value).toBe('40');
@@ -140,11 +138,9 @@ describe('AmazonPresetSection', () => {
 
     it('allows entering current Vacation balance', async () => {
       const user = userEvent.setup();
-      const { container } = render(<AmazonPresetSection />);
+      render(<AmazonPresetSection />);
 
-      const vacationInput = container.querySelector(
-        'input[placeholder*="40 or 5h22m"]',
-      ) as HTMLInputElement;
+      const vacationInput = screen.getByLabelText(/current vacation balance/i) as HTMLInputElement;
       await user.type(vacationInput, '80');
 
       expect(vacationInput.value).toBe('80');
@@ -173,11 +169,9 @@ describe('AmazonPresetSection', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
-      const { container } = render(<AmazonPresetSection />);
+      render(<AmazonPresetSection />);
 
-      const uptInput = container.querySelector(
-        'input[placeholder*="10 or 5h22m"]',
-      ) as HTMLInputElement;
+      const uptInput = screen.getByLabelText(/current upt balance/i) as HTMLInputElement;
       await user.type(uptInput, '40');
 
       const submitButton = screen.getByRole('button', { name: /load amazon defaults/i });
@@ -203,7 +197,7 @@ describe('AmazonPresetSection', () => {
 
       render(<AmazonPresetSection />);
 
-      const flexInput = screen.getByPlaceholderText(/10 or 5h22m/i) as HTMLInputElement;
+      const flexInput = screen.getByLabelText(/current flex balance/i) as HTMLInputElement;
 
       await user.type(flexInput, '5:30');
 
@@ -228,11 +222,9 @@ describe('AmazonPresetSection', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
-      const { container } = render(<AmazonPresetSection />);
+      render(<AmazonPresetSection />);
 
-      const vacationInput = container.querySelector(
-        'input[placeholder*="40 or 5h22m"]',
-      ) as HTMLInputElement;
+      const vacationInput = screen.getByLabelText(/current vacation balance/i) as HTMLInputElement;
       await user.type(vacationInput, '5h22m');
 
       const submitButton = screen.getByRole('button', { name: /load amazon defaults/i });
@@ -389,10 +381,12 @@ describe('AmazonPresetSection', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
-      // Mock location.reload by replacing the whole location object
+      // Mock location.reload by defining it on the window object
       const originalLocation = window.location;
-      delete (window as { location?: Location }).location;
-      window.location = { ...originalLocation, reload: vi.fn() } as unknown as Location;
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { ...originalLocation, reload: vi.fn() },
+      });
 
       mockApplyPreset.mockImplementation((_, options) => {
         if (options && 'onSuccess' in options && typeof options.onSuccess === 'function') {
@@ -415,7 +409,10 @@ describe('AmazonPresetSection', () => {
 
       confirmSpy.mockRestore();
       alertSpy.mockRestore();
-      window.location = originalLocation;
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: originalLocation,
+      });
     });
 
     it('shows error alert on submission failure', async () => {
