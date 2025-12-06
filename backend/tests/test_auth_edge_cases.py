@@ -72,6 +72,7 @@ class TestTokenExpiry:
             headers={"Authorization": f"Bearer {short_token}"},
         )
         assert response.status_code == 401
+        assert "could not validate credentials" in response.json()["detail"].lower()
 
     def test_token_expiration_boundary(
         self, client: TestClient, test_user: User
