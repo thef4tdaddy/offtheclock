@@ -118,6 +118,21 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
+            <span
+              style={{
+                position: 'absolute',
+                width: 1,
+                height: 1,
+                padding: 0,
+                margin: -1,
+                overflow: 'hidden',
+                clip: 'rect(0, 0, 0, 0)',
+                whiteSpace: 'nowrap',
+                borderWidth: 0,
+              }}
+            >
+              Close modal
+            </span>
             <X size={20} className="text-gray-400" />
           </button>
         </div>
@@ -141,8 +156,14 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
           {activeTab === 'single' ? (
             <form onSubmit={handleSingleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text-muted mb-1">Date</label>
+                <label
+                  htmlFor="single-date"
+                  className="block text-sm font-medium text-text-muted mb-1"
+                >
+                  Date
+                </label>
                 <input
+                  id="single-date"
                   type="date"
                   className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                   value={date}
@@ -152,10 +173,14 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">
+                  <label
+                    htmlFor="single-start-time"
+                    className="block text-sm font-medium text-text-muted mb-1"
+                  >
                     Start Time
                   </label>
                   <input
+                    id="single-start-time"
                     type="time"
                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                     value={startTime}
@@ -164,8 +189,14 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">End Time</label>
+                  <label
+                    htmlFor="single-end-time"
+                    className="block text-sm font-medium text-text-muted mb-1"
+                  >
+                    End Time
+                  </label>
                   <input
+                    id="single-end-time"
                     type="time"
                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                     value={endTime}
@@ -175,7 +206,13 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                 </div>
               </div>
               <div className="pt-4">
-                <Button type="submit" variant="primary" fullWidth isLoading={creatingSingle}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  isLoading={creatingSingle}
+                  data-testid="submit-single"
+                >
                   Add Shift
                 </Button>
               </div>
@@ -203,10 +240,14 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">
+                  <label
+                    htmlFor="recurring-start-time"
+                    className="block text-sm font-medium text-text-muted mb-1"
+                  >
                     Start Time
                   </label>
                   <input
+                    id="recurring-start-time"
                     type="time"
                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                     value={recStartTime}
@@ -215,8 +256,14 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">End Time</label>
+                  <label
+                    htmlFor="recurring-end-time"
+                    className="block text-sm font-medium text-text-muted mb-1"
+                  >
+                    End Time
+                  </label>
                   <input
+                    id="recurring-end-time"
                     type="time"
                     className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
                     value={recEndTime}
@@ -226,7 +273,13 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                 </div>
               </div>
               <div className="pt-4">
-                <Button type="submit" variant="primary" fullWidth isLoading={creatingBatch}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  isLoading={creatingBatch}
+                  data-testid="submit-recurring"
+                >
                   Generate Schedule
                 </Button>
                 <p className="text-xs text-text-muted text-center mt-2">

@@ -214,3 +214,10 @@ yarn-error.log
 # Misc
 test.db
 .DS_Store
+
+# Python Local
+venv/
+.venv/
+htmlcov/
+.coverage
+*.xml

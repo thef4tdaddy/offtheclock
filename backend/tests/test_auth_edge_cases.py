@@ -43,7 +43,7 @@ class TestTokenExpiry:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_with_very_short_expiration(
         self, client: TestClient, test_user: User
@@ -72,7 +72,7 @@ class TestTokenExpiry:
             headers={"Authorization": f"Bearer {short_token}"},
         )
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_expiration_boundary(
         self, client: TestClient, test_user: User
@@ -174,7 +174,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_with_empty_sub_claim(self, client: TestClient) -> None:
         """Test that token with empty 'sub' claim is rejected."""
@@ -189,7 +189,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_with_nonexistent_user_email(self, client: TestClient) -> None:
         """Test token with email of user that doesn't exist in database."""
@@ -204,7 +204,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_malformed_jwt_token(self, client: TestClient) -> None:
         """Test that malformed JWT token is rejected."""
@@ -223,7 +223,8 @@ class TestJWTValidationEdgeCases:
                 headers={"Authorization": f"Bearer {malformed_token}"},
             )
             assert response.status_code == 401
-            assert "could not validate credentials" in response.json()["detail"].lower()
+            assert "not authenticated" in response.json()["detail"].lower()
+
     def test_token_with_wrong_signature(
         self, client: TestClient, test_user: User
     ) -> None:
@@ -243,7 +244,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_with_wrong_secret_key(
         self, client: TestClient, test_user: User
@@ -263,7 +264,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_with_invalid_algorithm(
         self, client: TestClient, test_user: User
@@ -283,7 +284,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_with_none_algorithm_attack(
         self, client: TestClient, test_user: User
@@ -301,6 +302,7 @@ class TestJWTValidationEdgeCases:
         payload = base64.urlsafe_b64encode(json.dumps(token_data).encode()).rstrip(
             b"="
         )
+        payload = base64.urlsafe_b64encode(json.dumps(token_data).encode()).rstrip(b"=")
         none_token = f"{header.decode()}.{payload.decode()}."
 
         response = client.get(
@@ -309,7 +311,9 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
+
+
 @pytest.mark.integration
 class TestAuthenticationDependencyEdgeCases:
     """Tests for authentication dependency edge cases."""
@@ -318,7 +322,7 @@ class TestAuthenticationDependencyEdgeCases:
         """Test request without Authorization header."""
         response = client.get("/api/auth/users/me")
         assert response.status_code == 401
-        assert "could not validate credentials" in response.json()["detail"].lower()
+        assert "not authenticated" in response.json()["detail"].lower()
 
     def test_malformed_authorization_header(self, client: TestClient) -> None:
         """Test malformed Authorization header formats."""
@@ -333,7 +337,7 @@ class TestAuthenticationDependencyEdgeCases:
         for headers in malformed_headers:
             response = client.get("/api/auth/users/me", headers=headers)
             assert response.status_code == 401
-            assert "could not validate credentials" in response.json()["detail"].lower()
+            assert "not authenticated" in response.json()["detail"].lower()
 
     def test_token_reuse_after_password_change(
         self, client: TestClient, test_user: User, db: Session

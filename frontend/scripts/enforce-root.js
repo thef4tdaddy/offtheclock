@@ -12,6 +12,7 @@ const ALLOWED = new Set([
   '.prettierrc.js',
   'README.md',
   'commitlint.config.js',
+  'coverage',
   'configs',
   'dist',
   'eslint.config.js',
