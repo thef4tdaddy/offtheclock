@@ -1,11 +1,11 @@
-from datetime import timedelta
-from typing import List, Optional
+import uuid
+from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from .. import database, dependencies, models, schemas, security
+from .. import database, dependencies, models, schemas
 
 router = APIRouter(
     prefix="/shifts",
@@ -66,9 +66,6 @@ def create_shift(
     db.commit()
     db.refresh(db_shift)
     return db_shift
-
-
-import uuid
 
 
 @router.post("/batch", response_model=List[schemas.Shift])
