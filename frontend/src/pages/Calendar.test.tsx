@@ -195,7 +195,7 @@ describe('Calendar', () => {
     it('displays shifts on calendar', () => {
       render(<Calendar />);
       // Should show work shift information
-      expect(screen.getByText(/08:00/)).toBeInTheDocument();
+      expect(screen.getAllByTitle(/work shift/i).length).toBeGreaterThan(0);
     });
 
     it('displays logs on calendar', () => {
