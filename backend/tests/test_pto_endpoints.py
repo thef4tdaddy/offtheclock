@@ -346,7 +346,7 @@ class TestCalculateBalance:
         db.commit()
         db.refresh(category)
 
-        balance = calculate_balance(category, datetime.utcnow())
+        balance = calculate_balance(category, datetime(2024, 1, 1))
         assert balance == 15.0, "Should return starting_balance when start_date is None"
 
     def test_target_date_before_start_date(self, db: Session, test_user: User):
