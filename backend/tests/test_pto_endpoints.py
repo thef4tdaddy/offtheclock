@@ -49,6 +49,7 @@ class TestPTOEndpoints:
         assert response.status_code == 401
 
 
+@pytest.mark.unit
 class TestCalculateBalance:
     """Unit tests for calculate_balance function covering accrual logic and limits."""
 
