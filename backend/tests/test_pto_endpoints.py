@@ -220,16 +220,18 @@ class TestCalculateBalance:
         db.commit()
         db.refresh(category)
 
-        # Before Jan 1, 2024
+        # Before Jan 1, 2024 - should have weekly accruals only
+        # Dec 2023: Sundays are Dec 3, 10, 17, 24, 31 (5 Sundays after Dec 1 start)
         target_date = datetime(2023, 12, 31)
         balance = calculate_balance(category, target_date)
-        # Should have ~4 weeks of accrual (4 Sundays in Dec from Dec 3, 10, 17, 24, 31)
-        assert balance >= 4.0 and balance <= 5.0, "Should have weekly accruals only"
+        # Should have 5 weeks of accrual (5.0 hours)
+        assert balance == 5.0, f"Should have 5 weekly accruals, got {balance}"
 
         # On Jan 1, 2024, should get annual grant
         target_date = datetime(2024, 1, 1)
         balance = calculate_balance(category, target_date)
-        assert balance >= 14.0 and balance <= 16.0, "Should include 10.0 annual grant"
+        # Should have 5 weeks (5.0) + 10.0 annual grant = 15.0
+        assert balance == 15.0, f"Should include 10.0 annual grant, got {balance}"
 
     def test_grant_week_accrual_skip(self, db: Session, test_user: User):
         """Test that weekly accrual is skipped in the week of annual grant."""
@@ -250,19 +252,22 @@ class TestCalculateBalance:
         # Jan 7, 2024 is the first Sunday of the year (within 7 days of Jan 1)
         target_date = datetime(2024, 1, 7)
         balance = calculate_balance(category, target_date)
-        # Should have Dec accruals (~5 Sundays) + Jan 1 grant (10.0) but NO Jan 7 accrual
-        expected_dec_accruals = 5 * 1.85  # ~9.25
+        # Dec 2023: Sundays are Dec 3, 10, 17, 24, 31 (5 Sundays)
+        # Dec accruals: 5 * 1.85 = 9.25
+        # Jan 1 grant: 10.0
+        # Jan 7 accrual: SKIPPED (grant week rule)
+        expected = 9.25 + 10.0
         assert balance == pytest.approx(
-            expected_dec_accruals + 10.0, rel=0.1
-        ), "Should skip accrual on first Sunday after grant"
+            expected, abs=0.01
+        ), f"Should skip accrual on first Sunday after grant, expected {expected}, got {balance}"
 
         # Jan 14, 2024 (second Sunday) should accrue normally
         target_date = datetime(2024, 1, 14)
         balance = calculate_balance(category, target_date)
-        expected = expected_dec_accruals + 10.0 + 1.85
+        expected = 9.25 + 10.0 + 1.85
         assert balance == pytest.approx(
-            expected, rel=0.1
-        ), "Should resume normal accrual on second Sunday"
+            expected, abs=0.01
+        ), f"Should resume normal accrual on second Sunday, expected {expected}, got {balance}"
 
     def test_pto_log_usage(self, db: Session, test_user: User):
         """Test that PTO logs (usage/adjustments) are applied correctly."""
