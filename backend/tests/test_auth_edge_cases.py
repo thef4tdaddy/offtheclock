@@ -317,6 +317,7 @@ class TestAuthenticationDependencyEdgeCases:
         """Test request without Authorization header."""
         response = client.get("/api/auth/users/me")
         assert response.status_code == 401
+        assert "could not validate credentials" in response.json()["detail"].lower()
 
     def test_malformed_authorization_header(self, client: TestClient) -> None:
         """Test malformed Authorization header formats."""
