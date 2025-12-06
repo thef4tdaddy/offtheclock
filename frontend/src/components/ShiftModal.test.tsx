@@ -253,11 +253,9 @@ describe('ShiftModal', () => {
       const recurringTab = screen.getByText('Recurring Schedule');
       await user.click(recurringTab);
 
-      // Deselect all days
-      const dayButtons = ['Mo', 'Tu', 'We', 'Th'].map((day) =>
-        screen.getByRole('button', { name: day }),
-      );
-      for (const button of dayButtons) {
+      // Deselect all days using for-of loop for proper async handling
+      for (const day of ['Mo', 'Tu', 'We', 'Th']) {
+        const button = screen.getByRole('button', { name: day });
         await user.click(button);
       }
 

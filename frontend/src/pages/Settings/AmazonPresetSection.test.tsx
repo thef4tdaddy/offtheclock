@@ -9,6 +9,10 @@ vi.mock('../../hooks/api/usePTOMutation', () => ({
   useApplyAmazonPresetMutation: vi.fn(),
 }));
 
+// Helper function to get form inputs by their attributes
+const getShiftsPerWeekInput = (container: HTMLElement) =>
+  container.querySelector('input[min="1"][max="7"]:not([step])') as HTMLInputElement;
+
 describe('AmazonPresetSection', () => {
   const mockApplyPreset = vi.fn();
 
@@ -71,9 +75,7 @@ describe('AmazonPresetSection', () => {
 
       const tenureInput = container.querySelector('input[min="0"][max="50"]') as HTMLInputElement;
       const shiftLengthInput = container.querySelector('input[step="0.5"]') as HTMLInputElement;
-      const shiftsPerWeekInput = container.querySelector(
-        'input[min="1"][max="7"]:not([step])',
-      ) as HTMLInputElement;
+      const shiftsPerWeekInput = getShiftsPerWeekInput(container);
 
       expect(tenureInput.value).toBe('0');
       expect(shiftLengthInput.value).toBe('10');
@@ -106,9 +108,7 @@ describe('AmazonPresetSection', () => {
       const user = userEvent.setup();
       const { container } = render(<AmazonPresetSection />);
 
-      const shiftsPerWeekInput = container.querySelector(
-        'input[min="1"][max="7"]:not([step])',
-      ) as HTMLInputElement;
+      const shiftsPerWeekInput = getShiftsPerWeekInput(container);
       await user.clear(shiftsPerWeekInput);
       await user.type(shiftsPerWeekInput, '5');
 
@@ -458,9 +458,7 @@ describe('AmazonPresetSection', () => {
       const { container } = render(<AmazonPresetSection />);
 
       const shiftLengthInput = container.querySelector('input[step="0.5"]') as HTMLInputElement;
-      const shiftsPerWeekInput = container.querySelector(
-        'input[min="1"][max="7"]:not([step])',
-      ) as HTMLInputElement;
+      const shiftsPerWeekInput = getShiftsPerWeekInput(container);
 
       await user.clear(shiftLengthInput);
       await user.type(shiftLengthInput, '12');
