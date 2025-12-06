@@ -308,8 +308,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
-
-
+        assert "could not validate credentials" in response.json()["detail"].lower()
 @pytest.mark.integration
 class TestAuthenticationDependencyEdgeCases:
     """Tests for authentication dependency edge cases."""
