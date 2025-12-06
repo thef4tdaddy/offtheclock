@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import {
-  useCreateShiftMutation,
-  useCreateBatchShiftsMutation,
-  type ShiftCreate,
-} from '../hooks/api/useShifts';
+import { useCreateShiftMutation, useCreateBatchShiftsMutation } from '../hooks/api/useShifts';
 import Button from './common/Button';
+import { generateRecurringShifts } from '../utils/shifts';
 
 interface ShiftModalProps {
   isOpen: boolean;
   onClose: () => void;
   initialDate?: string; // YYYY-MM-DD
+  initialMode?: 'single' | 'recurring';
   userPreferences?: {
     shift_length?: number;
     shifts_per_week?: number;
@@ -21,9 +19,10 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   isOpen,
   onClose,
   initialDate,
+  initialMode = 'single',
   userPreferences,
 }) => {
-  const [activeTab, setActiveTab] = useState<'single' | 'recurring'>('single');
+  const [activeTab, setActiveTab] = useState<'single' | 'recurring'>(initialMode);
 
   // Helper to calculate defaults
   const getDefaultTime = () => {
@@ -54,8 +53,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   const [endTime, setEndTime] = useState(getDefaultTime);
 
   // Recurring Shift State
-  const [startDate, setStartDate] = useState(initialDate || new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState('');
   const [recStartTime, setRecStartTime] = useState('08:00');
   const [recEndTime, setRecEndTime] = useState(getDefaultTime);
   const [selectedDays, setSelectedDays] = useState<number[]>(getDefaultDays);
@@ -83,26 +80,8 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
 
   const handleBatchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!startDate || !endDate) return;
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const shifts: ShiftCreate[] = [];
-
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      if (selectedDays.includes(d.getDay())) {
-        const dateStr = d.toISOString().split('T')[0];
-        const sTime = new Date(`${dateStr}T${recStartTime}`);
-        const eTime = new Date(`${dateStr}T${recEndTime}`);
-        if (eTime < sTime) {
-          eTime.setDate(eTime.getDate() + 1);
-        }
-        shifts.push({
-          start_time: sTime.toISOString(),
-          end_time: eTime.toISOString(),
-        });
-      }
-    }
+    const shifts = generateRecurringShifts(selectedDays, recStartTime, recEndTime);
 
     if (shifts.length === 0) {
       alert('No shifts generated based on your selection.');
@@ -220,30 +199,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                       {day.label}
                     </button>
                   ))}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">
-                    Start Date
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-text-muted mb-1">End Date</label>
-                  <input
-                    type="date"
-                    className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary outline-none"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    required
-                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">

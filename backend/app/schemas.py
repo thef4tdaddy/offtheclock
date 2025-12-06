@@ -57,14 +57,14 @@ class PTOLog(PTOLogBase):
 
 class PTOCategoryBase(BaseModel):
     name: str
-    accrual_rate: float
-    accrual_frequency: AccrualFrequency
+    accrual_rate: Optional[float] = 0.0
+    accrual_frequency: Optional[AccrualFrequency] = None
     max_balance: Optional[float] = None
     yearly_accrual_cap: Optional[float] = None
-    accrued_ytd: float = 0.0
-    annual_grant_amount: float = 0.0
-    start_date: datetime
-    starting_balance: float = 0.0
+    accrued_ytd: Optional[float] = 0.0
+    annual_grant_amount: Optional[float] = 0.0
+    start_date: Optional[datetime] = None
+    starting_balance: Optional[float] = 0.0
 
 
 class PTOCategoryCreate(PTOCategoryBase):
@@ -99,6 +99,7 @@ class ShiftCreate(ShiftBase):
 class Shift(ShiftBase):
     id: int
     user_id: int
+    series_id: Optional[str] = None
     upt_log_id: Optional[int] = None
 
     class Config:

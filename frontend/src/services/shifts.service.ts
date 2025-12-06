@@ -8,6 +8,7 @@ export interface Shift {
   start_time: string;
   end_time: string;
   upt_log_id?: number;
+  series_id?: string;
 }
 
 export interface ShiftCreate {
@@ -33,5 +34,9 @@ export const shiftsService = {
 
   deleteShift: async (id: number): Promise<void> => {
     await axios.delete(`${API_URL}/${id}`);
+  },
+
+  deleteShiftSeries: async (seriesId: string): Promise<void> => {
+    await axios.delete(`${API_URL}/series/${seriesId}`);
   },
 };

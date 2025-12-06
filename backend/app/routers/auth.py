@@ -86,10 +86,6 @@ def update_user_me(
         db_user.employer = user_update.employer  # type: ignore
     if user_update.avatar_url is not None:
         db_user.avatar_url = user_update.avatar_url  # type: ignore
-    if user_update.shift_length is not None:
-        db_user.shift_length = user_update.shift_length  # type: ignore
-    if user_update.shifts_per_week is not None:
-        db_user.shifts_per_week = user_update.shifts_per_week  # type: ignore
 
     db.commit()
     db.refresh(db_user)

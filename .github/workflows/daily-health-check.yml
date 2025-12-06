@@ -32,7 +32,7 @@ jobs:
           cd backend
           python -m venv venv
           source venv/bin/activate
-          pip install -r requirements.txt
+          pip install -r ../requirements.txt
           pip install pytest pytest-cov httpx
 
       - name: Run Backend Tests & Coverage
@@ -73,7 +73,7 @@ jobs:
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `🚨 Health Check Failed: ${date}`,
-              body: `The Daily Health Check workflow failed on ${date}. \n\nPlease check the [Actions Log](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) for details and coverage reports.`,
-              labels: ['bug', 'automated-report']
+              title: `� Health / Coverage Alert: ${date}`,
+              body: `The Daily Health Check workflow failed on ${date}. \n\n**Possible Causes:**\n1. 🐛 **Tests Failed**: Code logic error.\n2. 📉 **Low Coverage**: Coverage dropped below **50%**.\n\nPlease check the [Actions Log](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) to see which one it is.`,
+              labels: ['bug', 'automated-report', 'coverage']
             });

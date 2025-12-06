@@ -64,6 +64,72 @@ Originally designed to help **Amazon Warehouse Employees** manage their complex 
     npm run dev
     ```
 
+## Testing
+
+### Backend Tests (pytest)
+
+The backend uses pytest with comprehensive unit and integration tests:
+
+```bash
+cd backend
+
+# Run all tests
+pytest
+
+# Run with coverage report
+pytest --cov=app --cov-report=html
+
+# Run only unit tests
+pytest -m unit
+
+# Run only integration tests
+pytest -m integration
+
+# Run specific test file
+pytest tests/test_auth_endpoints.py
+```
+
+**Test Structure:**
+- `tests/test_security.py` - Unit tests for password hashing and JWT tokens
+- `tests/test_shifts_utils.py` - Unit tests for UPT accrual calculations
+- `tests/test_auth_endpoints.py` - Integration tests for authentication endpoints
+- `tests/test_shifts_endpoints.py` - Integration tests for shifts CRUD operations
+
+**Test Database:**
+Tests use an in-memory SQLite database with transaction rollback for isolation.
+
+### Frontend Tests (Vitest)
+
+The frontend uses Vitest with React Testing Library:
+
+```bash
+cd frontend
+
+# Run all tests
+npm test
+
+# Run tests in watch mode (for development)
+npm test
+
+# Run tests once (for CI)
+npm run test:run
+
+# Run with coverage report
+npm run test:coverage
+
+# Run tests with UI
+npm run test:ui
+```
+
+**Test Structure:**
+- `src/utils/format.test.ts` - Unit tests for utility functions
+- `src/components/common/Button.test.tsx` - Component tests for Button
+- `src/test/test-utils.tsx` - Custom render function with providers
+
+**Test Coverage:**
+- Backend: 59% code coverage (43 tests passing)
+- Frontend: 37 tests passing across utility and component tests
+
 ## Development Guidelines
 
 ### Frontend Architecture
