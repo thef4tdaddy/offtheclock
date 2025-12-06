@@ -243,6 +243,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
+        assert "could not validate credentials" in response.json()["detail"].lower()
 
     def test_token_with_wrong_secret_key(
         self, client: TestClient, test_user: User
