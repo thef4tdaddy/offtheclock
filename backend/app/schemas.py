@@ -158,6 +158,10 @@ class SystemSettingsItem(BaseModel):
         from_attributes = True
 
 
+class UpdateSystemSetting(BaseModel):
+    value: str
+
+
 class DatabaseMetrics(BaseModel):
     total_users: int
     total_pto_categories: int

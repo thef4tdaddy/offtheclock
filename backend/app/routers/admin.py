@@ -145,7 +145,7 @@ def get_system_settings(
 @router.put("/settings/{key}", response_model=schemas.SystemSettingsItem)
 def update_system_setting(
     key: str,
-    value: str,
+    update_data: schemas.UpdateSystemSetting,
     db: Session = Depends(database.get_db),
     current_admin: models.User = Depends(dependencies.get_current_admin_user),
 ) -> models.SystemSettings:
@@ -154,9 +154,9 @@ def update_system_setting(
     
     if setting:
         old_value = setting.value
-        setting.value = value  # type: ignore
+        setting.value = update_data.value  # type: ignore
     else:
-        setting = models.SystemSettings(key=key, value=value)
+        setting = models.SystemSettings(key=key, value=update_data.value)
         db.add(setting)
         old_value = None
     
@@ -164,7 +164,7 @@ def update_system_setting(
     db.refresh(setting)
     
     # Create audit log
-    details = json.dumps({"key": key, "old_value": old_value, "new_value": value})
+    details = json.dumps({"key": key, "old_value": old_value, "new_value": update_data.value})
     create_audit_log(db, current_admin.id, "update_setting", None, details)
     
     return setting

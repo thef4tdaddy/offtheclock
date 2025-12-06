@@ -39,11 +39,7 @@ export const adminService = {
   },
 
   async updateSetting(key: string, value: string): Promise<SystemSettingsItem> {
-    const response = await axios.put(`/api/admin/settings/${key}`, value, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const response = await axios.put(`/api/admin/settings/${key}`, { value });
     return SystemSettingsItemSchema.parse(response.data);
   },
 
