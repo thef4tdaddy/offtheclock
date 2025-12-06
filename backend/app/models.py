@@ -95,7 +95,7 @@ class AuditLog(Base):  # type: ignore
     __tablename__ = "audit_logs"
 
     id = Column(Integer, primary_key=True, index=True)
-    admin_user_id = Column(Integer, ForeignKey("users.id"))
+    admin_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     action = Column(String)  # e.g., "grant_admin", "revoke_admin", "create_user", "delete_user"
     target_user_id = Column(Integer, nullable=True)  # User affected by the action
     details = Column(Text, nullable=True)  # Additional context as JSON or text
