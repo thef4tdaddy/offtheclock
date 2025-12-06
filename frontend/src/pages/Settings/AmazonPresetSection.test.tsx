@@ -241,7 +241,7 @@ describe('AmazonPresetSection', () => {
       await waitFor(() => {
         expect(mockApplyPreset).toHaveBeenCalledWith(
           expect.objectContaining({
-            current_std: expect.closeTo(5.367, 2),
+            current_std: expect.closeTo(5.366666666666667, 10),
           }),
           expect.any(Object),
         );
