@@ -86,9 +86,14 @@ const CreateUserForm: React.FC = () => {
             value={formData.password}
             onChange={handleChange}
             required
-            minLength={6}
+            minLength={8}
+            pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]).{8,}$"
+            title="Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
             className="w-full px-3 py-2 bg-surface-hover border border-border-default rounded-md text-text-main focus:outline-none focus:ring-2 focus:ring-accent-info"
           />
+          <p className="text-xs text-text-secondary mt-1">
+            Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
+          </p>
         </div>
 
         <div>
