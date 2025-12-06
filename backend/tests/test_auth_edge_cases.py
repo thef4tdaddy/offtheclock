@@ -221,7 +221,7 @@ class TestJWTValidationEdgeCases:
                 headers={"Authorization": f"Bearer {malformed_token}"},
             )
             assert response.status_code == 401
-
+            assert "could not validate credentials" in response.json()["detail"].lower()
     def test_token_with_wrong_signature(
         self, client: TestClient, test_user: User
     ) -> None:
