@@ -34,9 +34,10 @@ describe('ShiftModal', () => {
       expect(screen.queryByText('Add Shift')).not.toBeInTheDocument();
     });
 
-    it('renders modal when isOpen is true', () => {
+    it('renders modal header correctly', () => {
       render(<ShiftModal isOpen={true} onClose={mockOnClose} />);
-      expect(screen.getByText('Add Shift')).toBeInTheDocument();
+      const headings = screen.getAllByRole('heading', { name: /add shift/i });
+      expect(headings[0]).toBeInTheDocument();
     });
 
     it('renders both tabs: Single Shift and Recurring Schedule', () => {
@@ -47,7 +48,7 @@ describe('ShiftModal', () => {
 
     it('renders close button', () => {
       render(<ShiftModal isOpen={true} onClose={mockOnClose} />);
-      const closeButton = screen.getByRole('button', { name: /close/i });
+      const closeButton = screen.getByRole('button', { name: /close modal/i });
       expect(closeButton).toBeInTheDocument();
     });
   });
@@ -58,7 +59,7 @@ describe('ShiftModal', () => {
       expect(screen.getByLabelText('Date')).toBeInTheDocument();
       expect(screen.getByLabelText('Start Time')).toBeInTheDocument();
       expect(screen.getByLabelText('End Time')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /add shift/i })).toBeInTheDocument();
+      expect(screen.getByTestId('submit-single')).toBeInTheDocument();
     });
 
     it('uses initialDate when provided', () => {
@@ -115,13 +116,16 @@ describe('ShiftModal', () => {
       const user = userEvent.setup();
       render(<ShiftModal isOpen={true} onClose={mockOnClose} initialDate="2024-03-15" />);
 
-      const submitButton = screen.getByRole('button', { name: /add shift/i });
+      const submitButton = screen.getByTestId('submit-single');
       await user.click(submitButton);
+
+      const expectedStart = new Date('2024-03-15T08:00').toISOString();
+      const expectedEnd = new Date('2024-03-15T18:00').toISOString();
 
       expect(mockCreateShift).toHaveBeenCalledWith(
         expect.objectContaining({
-          start_time: expect.stringContaining('2024-03-15T08:00'),
-          end_time: expect.stringContaining('2024-03-15T18:00'),
+          start_time: expectedStart,
+          end_time: expectedEnd,
         }),
         expect.objectContaining({ onSuccess: mockOnClose }),
       );
@@ -140,13 +144,16 @@ describe('ShiftModal', () => {
       await user.clear(endTimeInput);
       await user.type(endTimeInput, '06:00');
 
-      const submitButton = screen.getByRole('button', { name: /add shift/i });
+      const submitButton = screen.getByTestId('submit-single');
       await user.click(submitButton);
+
+      const expectedStart = new Date('2024-03-15T22:00').toISOString();
+      const expectedEnd = new Date('2024-03-16T06:00').toISOString();
 
       expect(mockCreateShift).toHaveBeenCalledWith(
         expect.objectContaining({
-          start_time: expect.stringContaining('2024-03-15T22:00'),
-          end_time: expect.stringContaining('2024-03-16T06:00'),
+          start_time: expectedStart,
+          end_time: expectedEnd,
         }),
         expect.any(Object),
       );
@@ -159,7 +166,7 @@ describe('ShiftModal', () => {
       } as unknown as ReturnType<typeof useShiftsModule.useCreateShiftMutation>);
 
       render(<ShiftModal isOpen={true} onClose={mockOnClose} />);
-      const submitButton = screen.getByRole('button', { name: /add shift/i });
+      const submitButton = screen.getByTestId('submit-single');
       expect(submitButton).toBeDisabled();
     });
   });
@@ -176,7 +183,7 @@ describe('ShiftModal', () => {
       expect(screen.getByText('Work Days')).toBeInTheDocument();
       expect(screen.getByLabelText('Start Time')).toBeInTheDocument();
       expect(screen.getByLabelText('End Time')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /generate schedule/i })).toBeInTheDocument();
+      expect(screen.getByTestId('submit-recurring')).toBeInTheDocument();
     });
 
     it('renders all days of the week buttons', () => {
@@ -230,7 +237,7 @@ describe('ShiftModal', () => {
       const recurringTab = screen.getByText('Recurring Schedule');
       await user.click(recurringTab);
 
-      const submitButton = screen.getByRole('button', { name: /generate schedule/i });
+      const submitButton = screen.getByTestId('submit-recurring');
       await user.click(submitButton);
 
       expect(mockCreateBatch).toHaveBeenCalledWith(
@@ -259,7 +266,7 @@ describe('ShiftModal', () => {
         await user.click(button);
       }
 
-      const submitButton = screen.getByRole('button', { name: /generate schedule/i });
+      const submitButton = screen.getByTestId('submit-recurring');
       await user.click(submitButton);
 
       expect(alertSpy).toHaveBeenCalledWith('No shifts generated based on your selection.');
@@ -275,7 +282,7 @@ describe('ShiftModal', () => {
       } as unknown as ReturnType<typeof useShiftsModule.useCreateBatchShiftsMutation>);
 
       render(<ShiftModal isOpen={true} onClose={mockOnClose} initialMode="recurring" />);
-      const submitButton = screen.getByRole('button', { name: /generate schedule/i });
+      const submitButton = screen.getByTestId('submit-recurring');
       expect(submitButton).toBeDisabled();
     });
   });
@@ -330,7 +337,7 @@ describe('ShiftModal', () => {
       });
 
       render(<ShiftModal isOpen={true} onClose={mockOnClose} />);
-      const submitButton = screen.getByRole('button', { name: /add shift/i });
+      const submitButton = screen.getByTestId('submit-single');
       await user.click(submitButton);
 
       await waitFor(() => {
