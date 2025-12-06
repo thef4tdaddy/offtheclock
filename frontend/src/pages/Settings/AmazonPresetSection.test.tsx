@@ -129,10 +129,10 @@ describe('AmazonPresetSection', () => {
 
     it('allows entering current Flex balance', async () => {
       const user = userEvent.setup();
-      const { container } = render(<AmazonPresetSection />);
+      render(<AmazonPresetSection />);
 
-      const inputs = Array.from(container.querySelectorAll('input[placeholder*="10 or 5h22m"]'));
-      const flexInput = inputs[1] as HTMLInputElement;
+      const flexLabel = screen.getByText('Current Flex Balance');
+      const flexInput = flexLabel.closest('div')?.querySelector('input') as HTMLInputElement;
       await user.type(flexInput, '20');
 
       expect(flexInput.value).toBe('20');
