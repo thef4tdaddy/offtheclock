@@ -83,11 +83,7 @@ describe('ShiftModal', () => {
 
     it('calculates default end time from user preferences', () => {
       render(
-        <ShiftModal
-          isOpen={true}
-          onClose={mockOnClose}
-          userPreferences={{ shift_length: 10 }}
-        />,
+        <ShiftModal isOpen={true} onClose={mockOnClose} userPreferences={{ shift_length: 10 }} />,
       );
       const endTimeInput = screen.getByLabelText('End Time') as HTMLInputElement;
       expect(endTimeInput.value).toBe('18:00'); // 8 + 10 = 18:00
@@ -268,9 +264,7 @@ describe('ShiftModal', () => {
       const submitButton = screen.getByRole('button', { name: /generate schedule/i });
       await user.click(submitButton);
 
-      expect(alertSpy).toHaveBeenCalledWith(
-        'No shifts generated based on your selection.',
-      );
+      expect(alertSpy).toHaveBeenCalledWith('No shifts generated based on your selection.');
       expect(mockCreateBatch).not.toHaveBeenCalled();
 
       alertSpy.mockRestore();

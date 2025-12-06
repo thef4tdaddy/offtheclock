@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --color-primary: #e87c50;
@@ -6,11 +6,11 @@
   --color-secondary: #212121;
   --color-secondary-dark: #000000;
   --color-accent: #e87c50;
-  --color-bg-light: #F5F5F5;
+  --color-bg-light: #f5f5f5;
   --color-text-main: #212121;
   --color-text-muted: #757575;
-  
-  --font-sans: "Inter", sans-serif;
+
+  --font-sans: 'Inter', sans-serif;
 }
 
 @theme {
@@ -22,7 +22,7 @@
   --color-bg-light: var(--color-bg-light);
   --color-text-main: var(--color-text-main);
   --color-text-muted: var(--color-text-muted);
-  
+
   --font-sans: var(--font-sans);
 }
 

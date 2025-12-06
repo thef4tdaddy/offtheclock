@@ -40,7 +40,7 @@ describe('AmazonPresetSection', () => {
       expect(screen.getByText('Current UPT Balance')).toBeInTheDocument();
       expect(screen.getByText('Current Flex Balance')).toBeInTheDocument();
       expect(screen.getByText('Current Vacation Balance')).toBeInTheDocument();
-      
+
       // Verify inputs exist
       const inputs = container.querySelectorAll('input');
       expect(inputs.length).toBeGreaterThan(0);
@@ -48,18 +48,14 @@ describe('AmazonPresetSection', () => {
 
     it('renders schedule creator checkbox', () => {
       render(<AmazonPresetSection />);
-      const checkbox = screen.getByLabelText(
-        /pop out schedule creator after loading presets/i,
-      );
+      const checkbox = screen.getByLabelText(/pop out schedule creator after loading presets/i);
       expect(checkbox).toBeInTheDocument();
       expect(checkbox).toBeChecked();
     });
 
     it('renders submit button', () => {
       render(<AmazonPresetSection />);
-      expect(
-        screen.getByRole('button', { name: /load amazon defaults/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /load amazon defaults/i })).toBeInTheDocument();
     });
 
     it('renders PTO category information', () => {
@@ -75,7 +71,9 @@ describe('AmazonPresetSection', () => {
 
       const tenureInput = container.querySelector('input[min="0"][max="50"]') as HTMLInputElement;
       const shiftLengthInput = container.querySelector('input[step="0.5"]') as HTMLInputElement;
-      const shiftsPerWeekInput = container.querySelector('input[min="1"][max="7"]:not([step])') as HTMLInputElement;
+      const shiftsPerWeekInput = container.querySelector(
+        'input[min="1"][max="7"]:not([step])',
+      ) as HTMLInputElement;
 
       expect(tenureInput.value).toBe('0');
       expect(shiftLengthInput.value).toBe('10');
@@ -108,7 +106,9 @@ describe('AmazonPresetSection', () => {
       const user = userEvent.setup();
       const { container } = render(<AmazonPresetSection />);
 
-      const shiftsPerWeekInput = container.querySelector('input[min="1"][max="7"]:not([step])') as HTMLInputElement;
+      const shiftsPerWeekInput = container.querySelector(
+        'input[min="1"][max="7"]:not([step])',
+      ) as HTMLInputElement;
       await user.clear(shiftsPerWeekInput);
       await user.type(shiftsPerWeekInput, '5');
 
@@ -119,7 +119,9 @@ describe('AmazonPresetSection', () => {
       const user = userEvent.setup();
       const { container } = render(<AmazonPresetSection />);
 
-      const uptInput = container.querySelector('input[placeholder*="10 or 5h22m"]') as HTMLInputElement;
+      const uptInput = container.querySelector(
+        'input[placeholder*="10 or 5h22m"]',
+      ) as HTMLInputElement;
       await user.type(uptInput, '40');
 
       expect(uptInput.value).toBe('40');
@@ -140,7 +142,9 @@ describe('AmazonPresetSection', () => {
       const user = userEvent.setup();
       const { container } = render(<AmazonPresetSection />);
 
-      const vacationInput = container.querySelector('input[placeholder*="40 or 5h22m"]') as HTMLInputElement;
+      const vacationInput = container.querySelector(
+        'input[placeholder*="40 or 5h22m"]',
+      ) as HTMLInputElement;
       await user.type(vacationInput, '80');
 
       expect(vacationInput.value).toBe('80');
@@ -171,7 +175,9 @@ describe('AmazonPresetSection', () => {
 
       const { container } = render(<AmazonPresetSection />);
 
-      const uptInput = container.querySelector('input[placeholder*="10 or 5h22m"]') as HTMLInputElement;
+      const uptInput = container.querySelector(
+        'input[placeholder*="10 or 5h22m"]',
+      ) as HTMLInputElement;
       await user.type(uptInput, '40');
 
       const submitButton = screen.getByRole('button', { name: /load amazon defaults/i });
@@ -224,7 +230,9 @@ describe('AmazonPresetSection', () => {
 
       const { container } = render(<AmazonPresetSection />);
 
-      const vacationInput = container.querySelector('input[placeholder*="40 or 5h22m"]') as HTMLInputElement;
+      const vacationInput = container.querySelector(
+        'input[placeholder*="40 or 5h22m"]',
+      ) as HTMLInputElement;
       await user.type(vacationInput, '5h22m');
 
       const submitButton = screen.getByRole('button', { name: /load amazon defaults/i });
@@ -380,7 +388,7 @@ describe('AmazonPresetSection', () => {
       const user = userEvent.setup();
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-      
+
       // Mock location.reload by replacing the whole location object
       const originalLocation = window.location;
       delete (window as { location?: Location }).location;
@@ -394,9 +402,7 @@ describe('AmazonPresetSection', () => {
 
       render(<AmazonPresetSection />);
 
-      const checkbox = screen.getByLabelText(
-        /pop out schedule creator after loading presets/i,
-      );
+      const checkbox = screen.getByLabelText(/pop out schedule creator after loading presets/i);
       await user.click(checkbox); // Uncheck it
 
       const submitButton = screen.getByRole('button', { name: /load amazon defaults/i });
@@ -452,7 +458,9 @@ describe('AmazonPresetSection', () => {
       const { container } = render(<AmazonPresetSection />);
 
       const shiftLengthInput = container.querySelector('input[step="0.5"]') as HTMLInputElement;
-      const shiftsPerWeekInput = container.querySelector('input[min="1"][max="7"]:not([step])') as HTMLInputElement;
+      const shiftsPerWeekInput = container.querySelector(
+        'input[min="1"][max="7"]:not([step])',
+      ) as HTMLInputElement;
 
       await user.clear(shiftLengthInput);
       await user.type(shiftLengthInput, '12');
@@ -497,7 +505,9 @@ describe('AmazonPresetSection', () => {
 
     it('has input constraints for shift length', () => {
       const { container } = render(<AmazonPresetSection />);
-      const shiftLengthInput = container.querySelector('input[min="1"][max="24"]') as HTMLInputElement;
+      const shiftLengthInput = container.querySelector(
+        'input[min="1"][max="24"]',
+      ) as HTMLInputElement;
       expect(shiftLengthInput).toBeInTheDocument();
       expect(shiftLengthInput.min).toBe('1');
       expect(shiftLengthInput.max).toBe('24');
@@ -505,7 +515,9 @@ describe('AmazonPresetSection', () => {
 
     it('has input constraints for shifts per week', () => {
       const { container } = render(<AmazonPresetSection />);
-      const shiftsPerWeekInput = container.querySelector('input[min="1"][max="7"]') as HTMLInputElement;
+      const shiftsPerWeekInput = container.querySelector(
+        'input[min="1"][max="7"]',
+      ) as HTMLInputElement;
       expect(shiftsPerWeekInput).toBeInTheDocument();
       expect(shiftsPerWeekInput.min).toBe('1');
       expect(shiftsPerWeekInput.max).toBe('7');

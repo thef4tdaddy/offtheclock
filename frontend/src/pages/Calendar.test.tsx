@@ -225,9 +225,7 @@ describe('Calendar', () => {
       });
 
       const buttons = screen.getAllByRole('button');
-      const prevButton = buttons.find((btn) =>
-        btn.querySelector('svg[class*="lucide"]'),
-      );
+      const prevButton = buttons.find((btn) => btn.querySelector('svg[class*="lucide"]'));
 
       if (prevButton) {
         await user.click(prevButton);
@@ -250,9 +248,7 @@ describe('Calendar', () => {
 
       const buttons = screen.getAllByRole('button');
       // Find next button (should be the second navigation button)
-      const nextButton = buttons
-        .filter((btn) => btn.querySelector('svg[class*="lucide"]'))
-        .pop();
+      const nextButton = buttons.filter((btn) => btn.querySelector('svg[class*="lucide"]')).pop();
 
       if (nextButton) {
         await user.click(nextButton);
@@ -287,8 +283,7 @@ describe('Calendar', () => {
       expect(screen.getByText(/10\.0h/)).toBeInTheDocument();
     });
 
-    it('shows delete button on shift hover', async () => {
-      const user = userEvent.setup();
+    it('shows delete button on shift hover', () => {
       render(<Calendar />);
 
       const shiftElements = screen.getAllByTitle(/work shift/i);
@@ -431,7 +426,7 @@ describe('Calendar', () => {
 
       // Find a future Sunday in the calendar
       const today = new Date();
-      let futureDate = new Date(today);
+      const futureDate = new Date(today);
       futureDate.setDate(futureDate.getDate() + 7);
 
       // Adjust to next Sunday
