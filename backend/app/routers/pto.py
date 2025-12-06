@@ -150,15 +150,34 @@ def get_categories(
     db: Session = Depends(database.get_db),
     current_user: models.User = Depends(dependencies.get_current_user),
 ) -> List[models.PTOCategory]:
-    categories = (
-        db.query(models.PTOCategory)
-        .filter(models.PTOCategory.user_id == current_user.id)
-        .all()
-    )
+    print(f"PTO: Getting categories for user {current_user.id}")
+    try:
+        categories = (
+            db.query(models.PTOCategory)
+            .filter(models.PTOCategory.user_id == current_user.id)
+            .all()
+        )
+        print(f"PTO: Found {len(categories)} categories")
+    except Exception as e:
+        print(f"PTO: DB Query Failed: {e}")
+        import traceback
+
+        traceback.print_exc()
+        raise e
+
     # Compute dynamic balance
     now = datetime.utcnow()
     for cat in categories:
-        cat.current_balance = calculate_balance(cat, now)
+        try:
+            print(f"PTO: Calculating balance for cat {cat.id} ({cat.name})")
+            cat.current_balance = calculate_balance(cat, now)
+            print(f"PTO: Balance for {cat.id}: {cat.current_balance}")
+        except Exception as e:
+            print(f"PTO: Error calculating balance for category {cat.id}: {e}")
+            import traceback
+
+            traceback.print_exc()
+            cat.current_balance = 0.0  # Fallback
     return categories
 
 

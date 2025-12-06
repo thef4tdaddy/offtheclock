@@ -4,7 +4,11 @@ import LogModal from '../components/LogModal';
 import { formatHours } from '../utils/format';
 import { usePTOLogs, usePTOCategories } from '../hooks/api/usePTO';
 import { useDeleteLogMutation } from '../hooks/api/usePTOMutation';
-import { useShifts, useDeleteShiftMutation } from '../hooks/api/useShifts';
+import {
+  useShifts,
+  useDeleteShiftMutation,
+  useDeleteShiftSeriesMutation,
+} from '../hooks/api/useShifts';
 import { useUserProfile } from '../hooks/api/useUser';
 import ShiftModal from '../components/ShiftModal';
 import { Calendar as CalendarIcon, Briefcase, TrendingUp } from 'lucide-react';
@@ -17,6 +21,7 @@ const Calendar: React.FC = () => {
   const { data: user } = useUserProfile();
   const { mutate: deleteLog } = useDeleteLogMutation();
   const { mutate: deleteShift } = useDeleteShiftMutation();
+  const { mutate: deleteShiftSeries } = useDeleteShiftSeriesMutation();
 
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -65,8 +70,27 @@ const Calendar: React.FC = () => {
 
   const handleDeleteShift = (e: React.MouseEvent, shiftId: number) => {
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this shift?')) return;
-    deleteShift(shiftId);
+    const shift = shifts.find((s) => s.id === shiftId);
+    if (!shift) return;
+
+    if (shift.series_id) {
+      if (
+        confirm(
+          'This is a recurring shift.\n\nClick OK to delete the ENTIRE SERIES.\nClick Cancel to choose other options.',
+        )
+      ) {
+        deleteShiftSeries(shift.series_id);
+        return;
+      }
+      if (confirm('Delete just this single instance?')) {
+        deleteShift(shiftId);
+        return;
+      }
+    } else {
+      if (confirm('Are you sure you want to delete this shift?')) {
+        deleteShift(shiftId);
+      }
+    }
   };
 
   const openShiftModal = (dateStr?: string) => {

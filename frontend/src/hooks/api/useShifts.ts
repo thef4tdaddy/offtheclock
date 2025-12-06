@@ -45,3 +45,16 @@ export const useDeleteShiftMutation = () => {
     },
   });
 };
+
+export const useDeleteShiftSeriesMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: shiftsService.deleteShiftSeries,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['shifts'] });
+      // Categories/Logs might not need invalidation if no UPT was accrued, but safety first
+      queryClient.invalidateQueries({ queryKey: ['ptoLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['ptoCategories'] });
+    },
+  });
+};

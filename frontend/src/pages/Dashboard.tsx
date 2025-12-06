@@ -35,7 +35,9 @@ const CircularProgress: React.FC<{
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-3xl font-bold text-text-main">{formatHours(value)}</span>
+          <span className="text-xl md:text-2xl font-bold text-text-main px-2 break-all">
+            {formatHours(value)}
+          </span>
           <span className="text-xs text-text-muted uppercase tracking-wider">{label}</span>
         </div>
       </div>

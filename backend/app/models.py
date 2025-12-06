@@ -83,9 +83,12 @@ class Shift(Base):  # type: ignore
     user_id = Column(Integer, ForeignKey("users.id"))
     start_time = Column(DateTime)
     end_time = Column(DateTime)
+    series_id = Column(
+        String, nullable=True, index=True
+    )  # UUID for grouping recurring shifts
     upt_log_id = Column(
         Integer, ForeignKey("pto_logs.id"), nullable=True
-    )  # Linked accrual log
+    )  # linked accrual log
 
     user = relationship("User", back_populates="shifts")
     upt_log = relationship("PTOLog")

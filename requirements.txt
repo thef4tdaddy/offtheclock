@@ -14,3 +14,6 @@ mypy
 argon2-cffi
 black
 isort
+pytest
+pytest-cov
+httpx
