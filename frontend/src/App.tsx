@@ -29,7 +29,7 @@ const AdminRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="text-text-muted">Loading...</div>;
   }
 
   if (user?.role !== 'admin') {
