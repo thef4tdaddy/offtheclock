@@ -700,14 +700,14 @@ class TestCalculateBalanceEdgeCases:
         db.refresh(category)
 
         # Day 13 - should not accrue yet
-        target_date = datetime(2024, 1, 14)  # Day 13 (0-indexed from start)
+        target_date = datetime(2024, 1, 14)  # Day 14 from Jan 1
         balance = calculate_balance(category, target_date)
-        assert balance == 0.0, "Should not accrue before day 14"
+        assert balance == 0.0, "Should not accrue before completing 14 days"
 
-        # Day 14 exactly
-        target_date = datetime(2024, 1, 15)  # Day 14 from Jan 1
+        # Day 14 exactly (15th from Jan 1)
+        target_date = datetime(2024, 1, 15)  # Day 15 from Jan 1, 14 days since start
         balance = calculate_balance(category, target_date)
-        assert balance == 3.0, "Should accrue on day 14"
+        assert balance == 3.0, "Should accrue after 14 complete days"
 
     def test_annual_grant_on_start_date_jan1(self, db: Session, test_user: User):
         """Test that annual grant does NOT apply when start_date is Jan 1."""
