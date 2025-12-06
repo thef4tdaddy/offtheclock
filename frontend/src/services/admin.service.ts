@@ -18,8 +18,9 @@ export const adminService = {
     try {
       const response = await axios.get('/api/admin/users');
       return z.array(UserListItemSchema).parse(response.data);
-    } catch (error: any) {
-      throw new Error(`Failed to list users: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to list users: ${message}`);
     }
   },
 
@@ -27,8 +28,9 @@ export const adminService = {
     try {
       const response = await axios.put(`/api/admin/users/${userId}/role`, roleUpdate);
       return UserListItemSchema.parse(response.data);
-    } catch (error: any) {
-      throw new Error(`Failed to update user role: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update user role: ${message}`);
     }
   },
 
@@ -36,16 +38,18 @@ export const adminService = {
     try {
       const response = await axios.post('/api/admin/users', userData);
       return UserListItemSchema.parse(response.data);
-    } catch (error: any) {
-      throw new Error(`Failed to create user: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create user: ${message}`);
     }
   },
 
   async deleteUser(userId: number): Promise<void> {
     try {
       await axios.delete(`/api/admin/users/${userId}`);
-    } catch (error: any) {
-      throw new Error(`Failed to delete user: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to delete user: ${message}`);
     }
   },
 
@@ -53,8 +57,9 @@ export const adminService = {
     try {
       const response = await axios.get('/api/admin/settings');
       return z.array(SystemSettingsItemSchema).parse(response.data);
-    } catch (error: any) {
-      throw new Error(`Failed to get settings: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get settings: ${message}`);
     }
   },
 
@@ -62,8 +67,9 @@ export const adminService = {
     try {
       const response = await axios.put(`/api/admin/settings/${key}`, { value });
       return SystemSettingsItemSchema.parse(response.data);
-    } catch (error: any) {
-      throw new Error(`Failed to update setting: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update setting: ${message}`);
     }
   },
 
@@ -71,8 +77,9 @@ export const adminService = {
     try {
       const response = await axios.get('/api/admin/metrics');
       return DatabaseMetricsSchema.parse(response.data);
-    } catch (error: any) {
-      throw new Error(`Failed to get metrics: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get metrics: ${message}`);
     }
   },
 
@@ -82,8 +89,9 @@ export const adminService = {
         params: { skip, limit },
       });
       return z.array(AuditLogEntrySchema).parse(response.data);
-    } catch (error: any) {
-      throw new Error(`Failed to get audit logs: ${error?.message || error}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to get audit logs: ${message}`);
     }
   },
 };

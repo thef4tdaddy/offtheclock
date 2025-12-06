@@ -37,6 +37,9 @@ const SystemSettings: React.FC = () => {
           <button
             onClick={handleToggleRegistration}
             disabled={updateSettingMutation.isPending}
+            role="switch"
+            aria-checked={registrationEnabled}
+            aria-label="Toggle user registration"
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 ${
               registrationEnabled ? 'bg-accent-success' : 'bg-surface-active'
             }`}

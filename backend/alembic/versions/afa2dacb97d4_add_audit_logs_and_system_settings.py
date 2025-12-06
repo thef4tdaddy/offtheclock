@@ -24,12 +24,12 @@ def upgrade() -> None:
     op.create_table(
         'audit_logs',
         sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('admin_user_id', sa.Integer(), nullable=False),
+        sa.Column('admin_user_id', sa.Integer(), nullable=True),
         sa.Column('action', sa.String(), nullable=False),
         sa.Column('target_user_id', sa.Integer(), nullable=True),
         sa.Column('details', sa.Text(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.ForeignKeyConstraint(['admin_user_id'], ['users.id'], ),
+        sa.ForeignKeyConstraint(['admin_user_id'], ['users.id'], ondelete='SET NULL'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_audit_logs_id'), 'audit_logs', ['id'], unique=False)

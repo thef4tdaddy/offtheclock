@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
 from .models import AccrualFrequency, UserRole
 
@@ -133,7 +133,7 @@ class UpdateUserRole(BaseModel):
 
 class AdminUserCreate(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(min_length=8)
     full_name: Optional[str] = None
     role: UserRole = UserRole.EMPLOYEE
 
