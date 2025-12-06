@@ -270,8 +270,8 @@ describe('Calendar', () => {
 
       // LogModal should open (check for modal content)
       await waitFor(() => {
-        // Modal renders with categories prop, so categories will be used
-        expect(mockCategories).toBeDefined();
+        // Check for LogModal content, e.g. a title or form element
+        expect(screen.getByText(/log|pto/i)).toBeInTheDocument();
       });
     });
   });
