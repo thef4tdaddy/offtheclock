@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, engine
-from .routers import auth, pto, shifts
+from .routers import admin, auth, pto, shifts
 
 # Create tables (for simplicity in this initial phase)
 Base.metadata.create_all(bind=engine)
@@ -13,6 +13,7 @@ app = FastAPI()
 app.include_router(auth.router)
 app.include_router(pto.router)
 app.include_router(shifts.router)
+app.include_router(admin.router)
 
 # CORS configuration
 origins = [

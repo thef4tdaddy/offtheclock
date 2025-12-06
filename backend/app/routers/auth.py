@@ -16,6 +16,19 @@ router = APIRouter(
 def register_user(
     user: schemas.UserCreate, db: Session = Depends(database.get_db)
 ) -> models.User:
+    # Check if registration is enabled
+    registration_setting = (
+        db.query(models.SystemSettings)
+        .filter(models.SystemSettings.key == "registration_enabled")
+        .first()
+    )
+    
+    if registration_setting and registration_setting.value == "false":
+        raise HTTPException(
+            status_code=403,
+            detail="Registration is currently disabled"
+        )
+    
     db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")

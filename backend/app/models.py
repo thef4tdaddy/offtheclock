@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -89,3 +89,25 @@ class Shift(Base):  # type: ignore
 
     user = relationship("User", back_populates="shifts")
     upt_log = relationship("PTOLog")
+
+
+class AuditLog(Base):  # type: ignore
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    admin_user_id = Column(Integer, ForeignKey("users.id"))
+    action = Column(String)  # e.g., "grant_admin", "revoke_admin", "create_user", "delete_user"
+    target_user_id = Column(Integer, nullable=True)  # User affected by the action
+    details = Column(Text, nullable=True)  # Additional context as JSON or text
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    admin_user = relationship("User", foreign_keys=[admin_user_id])
+
+
+class SystemSettings(Base):  # type: ignore
+    __tablename__ = "system_settings"
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String, unique=True, index=True)
+    value = Column(String)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())

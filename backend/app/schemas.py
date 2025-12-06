@@ -23,6 +23,8 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     employer: Optional[str] = None
     avatar_url: Optional[str] = None
+    shift_length: Optional[float] = None
+    shifts_per_week: Optional[int] = None
 
 
 class User(UserBase):
@@ -111,3 +113,53 @@ class AmazonPresetRequest(BaseModel):
     current_flex: Optional[float] = None
     current_flex_ytd: Optional[float] = None
     current_std: Optional[float] = None
+
+
+# Admin Schemas
+class UserListItem(BaseModel):
+    id: int
+    email: EmailStr
+    full_name: Optional[str] = None
+    role: UserRole
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class UpdateUserRole(BaseModel):
+    role: UserRole
+
+
+class AdminUserCreate(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: Optional[str] = None
+    role: UserRole = UserRole.EMPLOYEE
+
+
+class AuditLogEntry(BaseModel):
+    id: int
+    admin_user_id: int
+    action: str
+    target_user_id: Optional[int] = None
+    details: Optional[str] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class SystemSettingsItem(BaseModel):
+    key: str
+    value: str
+
+    class Config:
+        from_attributes = True
+
+
+class DatabaseMetrics(BaseModel):
+    total_users: int
+    total_pto_categories: int
+    total_shifts: int
+    total_pto_logs: int
