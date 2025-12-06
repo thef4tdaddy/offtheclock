@@ -5,6 +5,7 @@ Ensures that running the seed script multiple times doesn't create duplicates.
 
 from datetime import datetime
 
+import pytest
 from sqlalchemy.orm import Session
 
 from app.models import AccrualFrequency, PTOCategory, User
@@ -88,7 +89,9 @@ class TestSeedPTOIdempotency:
         db.commit()
 
         # Verify the modification was saved
-        modified_cat = db.query(PTOCategory).filter(PTOCategory.id == upt_category.id).first()
+        modified_cat = (
+            db.query(PTOCategory).filter(PTOCategory.id == upt_category.id).first()
+        )
         assert modified_cat.accrual_rate == 999.0, "Modification should be saved"
 
         # Run seed again
@@ -160,9 +163,7 @@ class TestSeedPTOIdempotency:
         test_categories = (
             db.query(PTOCategory).filter(PTOCategory.user_id == test_user.id).all()
         )
-        assert (
-            len(test_categories) == 3
-        ), "Test user should have 3 seeded categories"
+        assert len(test_categories) == 3, "Test user should have 3 seeded categories"
 
     def test_delete_operation_is_scoped_to_user(
         self, db: Session, test_user: User, admin_user: User
