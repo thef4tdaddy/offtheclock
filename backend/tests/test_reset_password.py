@@ -139,20 +139,27 @@ class TestResetPasswordUtility:
     def test_reset_password_empty_password(
         self, mock_session_local: MagicMock, test_user: User
     ) -> None:
-        """Test reset password with empty password."""
+        """Test reset password with empty password.
+
+        SECURITY NOTE: This test documents a security vulnerability in the current
+        implementation. The reset_password function does not validate password strength
+        or prevent empty passwords. This should be fixed by adding password validation
+        before hashing.
+        """
         # Create a mock session that behaves like our test db
         mock_db = MagicMock(spec=Session)
         mock_db.query.return_value.filter.return_value.first.return_value = test_user
         mock_session_local.return_value = mock_db
 
-        # Note: This tests the current behavior. In production, you might want
-        # to add validation to prevent empty passwords.
         old_hashed = test_user.hashed_password
 
+        # Current behavior allows empty passwords - this is a security issue
         reset_password(test_user.email, "")
 
-        # Password should still be changed (though to empty hash)
+        # Verify that password is changed (documents current behavior)
         assert test_user.hashed_password != old_hashed
+
+        # TODO: Add password validation to prevent this vulnerability
 
     @patch("app.reset_password.SessionLocal")
     def test_reset_password_preserves_user_data(
