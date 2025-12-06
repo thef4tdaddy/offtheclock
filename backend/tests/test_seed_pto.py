@@ -5,7 +5,6 @@ Ensures that running the seed script multiple times doesn't create duplicates.
 
 from datetime import datetime
 
-import pytest
 from sqlalchemy.orm import Session
 
 from app.models import AccrualFrequency, PTOCategory, User
