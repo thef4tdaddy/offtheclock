@@ -120,7 +120,7 @@ describe('Settings', () => {
         isLoading: false,
       } as unknown as ReturnType<typeof useUserModule.useUser>);
 
-      const { container } = render(<Settings />);
+      render(<Settings />);
       const adminLink = screen.getByText('Admin Panel').closest('a');
       const svg = adminLink?.querySelector('svg');
       expect(svg).toBeInTheDocument();
