@@ -47,7 +47,7 @@ describe('ShiftModal', () => {
 
     it('renders close button', () => {
       render(<ShiftModal isOpen={true} onClose={mockOnClose} />);
-      const closeButton = screen.getByRole('button', { name: '' });
+      const closeButton = screen.getByRole('button', { name: /close/i });
       expect(closeButton).toBeInTheDocument();
     });
   });
