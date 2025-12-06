@@ -94,8 +94,8 @@ class TestTokenExpiry:
 
 
 @pytest.mark.integration
-class TestInvalidRolesAndScopes:
-    """Tests for role-based authorization edge cases."""
+class TestRolesAndClaims:
+    """Tests for role-based authorization and claims (admin, employee, custom claims)."""
 
     def test_admin_role_in_token(
         self, client: TestClient, admin_user: User, db: Session
