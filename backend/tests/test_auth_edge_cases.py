@@ -3,6 +3,8 @@ Integration tests for authentication edge cases.
 Tests token expiry, invalid scopes/roles, and JWT validation edge cases.
 """
 
+import base64
+import json
 import time
 from datetime import timedelta
 from typing import Any
@@ -60,7 +62,8 @@ class TestTokenExpiry:
         )
         assert response.status_code == 200
 
-        # Wait for expiration
+        # Wait for expiration - necessary for time-based expiration testing
+        # This is a deliberate sleep to test JWT expiration behavior
         time.sleep(2)
 
         # Should now be expired
@@ -287,13 +290,12 @@ class TestJWTValidationEdgeCases:
             "exp": time.time() + 3600,
         }
         # Manually create token with 'none' algorithm
-        import base64
-        import json
-
         header = base64.urlsafe_b64encode(
             json.dumps({"alg": "none", "typ": "JWT"}).encode()
         ).rstrip(b"=")
-        payload = base64.urlsafe_b64encode(json.dumps(token_data).encode()).rstrip(b"=")
+        payload = base64.urlsafe_b64encode(json.dumps(token_data).encode()).rstrip(
+            b"="
+        )
         none_token = f"{header.decode()}.{payload.decode()}."
 
         response = client.get(
