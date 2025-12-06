@@ -49,6 +49,7 @@ export const useDeleteUser = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'users'] });
       queryClient.invalidateQueries({ queryKey: ['admin', 'audit-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['admin', 'metrics'] });
     },
   });
 };
