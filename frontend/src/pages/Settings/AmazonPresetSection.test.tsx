@@ -203,8 +203,8 @@ describe('AmazonPresetSection', () => {
 
       const { container } = render(<AmazonPresetSection />);
 
-      const inputs = Array.from(container.querySelectorAll('input[placeholder*="10 or 5h22m"]'));
-      const flexInput = inputs[1] as HTMLInputElement;
+      const flexInput = screen.getByPlaceholderText(/10 or 5h22m/i) as HTMLInputElement;
+      
       await user.type(flexInput, '5:30');
 
       const submitButton = screen.getByRole('button', { name: /load amazon defaults/i });
