@@ -1,21 +1,24 @@
-from app.database import SessionLocal
-from app import models
+import sys
 from datetime import datetime
 from typing import Optional
 
-import sys
+from app import models
+from app.database import SessionLocal
+
 
 def seed_data(email: Optional[str] = None) -> None:
     db = SessionLocal()
-    
+
     if email:
         user = db.query(models.User).filter(models.User.email == email).first()
     else:
         # Get the first user (fallback)
         user = db.query(models.User).first()
-        
+
     if not user:
-        print(f"No user found{' with email ' + email if email else ''}! Please register a user first.")
+        print(
+            f"No user found{' with email ' + email if email else ''}! Please register a user first."
+        )
         return
 
     print(f"Seeding data for user: {user.email}")
@@ -33,8 +36,8 @@ def seed_data(email: Optional[str] = None) -> None:
         accrual_rate=3.333,
         accrual_frequency=models.AccrualFrequency.WEEKLY,
         max_balance=80.0,
-        start_date=datetime(2024, 1, 1), # Assuming start of year
-        starting_balance=0.0
+        start_date=datetime(2024, 1, 1),  # Assuming start of year
+        starting_balance=0.0,
     )
 
     # 2. Flexible PTO
@@ -47,7 +50,7 @@ def seed_data(email: Optional[str] = None) -> None:
         accrual_frequency=models.AccrualFrequency.WEEKLY,
         max_balance=48.0,
         start_date=datetime(2024, 1, 1),
-        starting_balance=10.0 # The Jan 1 grant
+        starting_balance=10.0,  # The Jan 1 grant
     )
 
     # 3. Standard PTO
@@ -60,13 +63,14 @@ def seed_data(email: Optional[str] = None) -> None:
         accrual_frequency=models.AccrualFrequency.WEEKLY,
         max_balance=120.0,
         start_date=datetime(2024, 1, 1),
-        starting_balance=0.0 # Assuming 0 carry-over for now, user can adjust
+        starting_balance=0.0,  # Assuming 0 carry-over for now, user can adjust
     )
 
     db.add_all([upt, flex, std])
     db.commit()
     print("Successfully seeded PTO categories!")
     db.close()
+
 
 if __name__ == "__main__":
     email_arg = sys.argv[1] if len(sys.argv) > 1 else None

@@ -2,11 +2,9 @@ from datetime import datetime, timedelta
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-from .. import database, dependencies, models, schemas, security
+from .. import database, dependencies, models, schemas
 
 router = APIRouter(
     prefix="/api/pto",

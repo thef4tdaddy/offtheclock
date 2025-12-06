@@ -1,6 +1,8 @@
-from app.database import SessionLocal
-from app import models, security
 import sys
+
+from app import models, security
+from app.database import SessionLocal
+
 
 def create_user(email: str, password: str) -> None:
     db = SessionLocal()
@@ -17,9 +19,10 @@ def create_user(email: str, password: str) -> None:
     print(f"User {email} created successfully")
     db.close()
 
+
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         print("Usage: python create_user.py <email> <password>")
         sys.exit(1)
-    
+
     create_user(sys.argv[1], sys.argv[2])

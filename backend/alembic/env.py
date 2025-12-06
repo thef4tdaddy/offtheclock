@@ -10,7 +10,6 @@ from alembic import context
 # Add the parent directory to sys.path so we can import app
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app import models  # Ensure models are registered
 from app.database import Base
 
 load_dotenv()

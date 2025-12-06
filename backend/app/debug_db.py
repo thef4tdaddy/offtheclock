@@ -1,6 +1,5 @@
-
-from app.database import SessionLocal
 from app import models
+from app.database import SessionLocal
 
 db = SessionLocal()
 users = db.query(models.User).all()

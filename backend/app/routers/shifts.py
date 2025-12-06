@@ -1,11 +1,10 @@
-from datetime import timedelta
-from typing import List, Optional
+from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from .. import database, dependencies, models, schemas, security
+from .. import database, dependencies, models, schemas
 
 router = APIRouter(
     prefix="/shifts",
