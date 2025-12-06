@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0](https://github.com/thef4tdaddy/offtheclock/compare/offtheclock-v0.3.1...offtheclock-v0.4.0) (2025-12-06)
+
+
+### Features
+
+* enhance shift management with series deletion and amazon preset integration ([4251a8c](https://github.com/thef4tdaddy/offtheclock/commit/4251a8c529974b0218d10ebb98d7b748cfd97e66))
+
+
+### Bug Fixes
+
+* **ci:** point to correct requirements.txt path in daily check ([1791577](https://github.com/thef4tdaddy/offtheclock/commit/179157706b3a22a812c12b21180882ff877297e5))
+* **ci:** point to correct requirements.txt path in daily check ([378e8fc](https://github.com/thef4tdaddy/offtheclock/commit/378e8fc667bc2bbfdf1d6155eb5e72876b584c18))
+* resolve merge conflicts between develop and main (deps + ci) ([870c1c2](https://github.com/thef4tdaddy/offtheclock/commit/870c1c29cd1ab4ba8d6f2bdd7190db236176d0e9))
+* **tests:** resolve type errors in shift utility tests ([c831973](https://github.com/thef4tdaddy/offtheclock/commit/c8319733c0f0ff2dfe1e4930c7dd2d3b6a9c7205))
+
 ## [0.3.1](https://github.com/thef4tdaddy/offtheclock/compare/offtheclock-v0.3.0...offtheclock-v0.3.1) (2025-12-05)
 
 
