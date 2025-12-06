@@ -331,6 +331,7 @@ class TestAuthenticationDependencyEdgeCases:
         for headers in malformed_headers:
             response = client.get("/api/auth/users/me", headers=headers)
             assert response.status_code == 401
+            assert "could not validate credentials" in response.json()["detail"].lower()
 
     def test_token_reuse_after_password_change(
         self, client: TestClient, test_user: User, db: Session
