@@ -318,12 +318,9 @@ describe('ShiftModal', () => {
       const user = userEvent.setup();
       render(<ShiftModal isOpen={true} onClose={mockOnClose} />);
 
-      const closeButtons = screen.getAllByRole('button');
-      const closeButton = closeButtons.find((btn) => btn.querySelector('svg')); // X icon
-      if (closeButton) {
-        await user.click(closeButton);
-        expect(mockOnClose).toHaveBeenCalled();
-      }
+      const closeButton = screen.getByRole('button', { name: /close modal/i });
+      await user.click(closeButton);
+      expect(mockOnClose).toHaveBeenCalled();
     });
 
     it('calls onClose on successful submission', async () => {
