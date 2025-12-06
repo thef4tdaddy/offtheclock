@@ -189,6 +189,7 @@ class TestJWTValidationEdgeCases:
         )
 
         assert response.status_code == 401
+        assert "could not validate credentials" in response.json()["detail"].lower()
 
     def test_token_with_nonexistent_user_email(self, client: TestClient) -> None:
         """Test token with email of user that doesn't exist in database."""
