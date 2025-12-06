@@ -146,7 +146,7 @@ describe('ProfileSection', () => {
     it('submits with correct payload', async () => {
       const user = userEvent.setup();
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-      
+
       // Mock location.reload
       const originalLocation = window.location;
       const reloadMock = vi.fn();
@@ -206,7 +206,7 @@ describe('ProfileSection', () => {
     it('shows success alert and reloads on successful update', async () => {
       const user = userEvent.setup();
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
-      
+
       // Mock location.reload
       const originalLocation = window.location;
       const reloadMock = vi.fn();

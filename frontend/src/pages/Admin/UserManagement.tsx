@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { Trash2, Shield, User } from 'lucide-react';
-import {
-  useAdminUsers,
-  useUpdateUserRole,
-  useDeleteUser,
-} from '../../hooks/api/useAdmin';
+import { useAdminUsers, useUpdateUserRole, useDeleteUser } from '../../hooks/api/useAdmin';
 import type { UserListItem } from '../../domain/schemas/admin';
 
 const UserManagement: React.FC = () => {
@@ -58,9 +54,7 @@ const UserManagement: React.FC = () => {
           <tbody className="bg-surface-base divide-y divide-border-default">
             {users?.map((user) => (
               <tr key={user.id} className="hover:bg-surface-hover">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">
-                  {user.email}
-                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">{user.email}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-text-main">
                   {user.full_name || '-'}
                 </td>
