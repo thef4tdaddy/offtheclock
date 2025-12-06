@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.models import AccrualFrequency, PTOCategory, User
 
 
+@pytest.mark.db
 class TestSeedPTOIdempotency:
     """Test that seed logic can be run multiple times safely."""
 
