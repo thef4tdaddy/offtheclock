@@ -242,6 +242,7 @@ const Calendar: React.FC = () => {
           <button
             onClick={prevMonth}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Previous month"
           >
             <ChevronLeft size={20} className="text-gray-600" />
           </button>
@@ -251,6 +252,7 @@ const Calendar: React.FC = () => {
           <button
             onClick={nextMonth}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Next month"
           >
             <ChevronRight size={20} className="text-gray-600" />
           </button>

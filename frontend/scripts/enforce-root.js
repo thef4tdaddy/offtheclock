@@ -27,7 +27,7 @@ const ALLOWED = new Set([
   'tsconfig.app.json',
   'tsconfig.json',
   'tsconfig.node.json',
-  'vite.config.ts'
+  'vite.config.ts',
 ]);
 
 // Ignored patterns (e.g., temporary files)
@@ -37,16 +37,18 @@ console.log('🔍 Checking root directory cleanliness...');
 
 try {
   const files = fs.readdirSync(rootDir);
-  const unknownFiles = files.filter(file => {
+  const unknownFiles = files.filter((file) => {
     if (ALLOWED.has(file)) return false;
-    if (IGNORED_EXTENSIONS.some(ext => file.endsWith(ext))) return false;
+    if (IGNORED_EXTENSIONS.some((ext) => file.endsWith(ext))) return false;
     return true;
   });
 
   if (unknownFiles.length > 0) {
     console.error('❌ Root directory contains unapproved files:');
-    unknownFiles.forEach(f => console.error(`   - ${f}`));
-    console.error('\nPlease move these files to frontend/configs/ or src/, or update scripts/enforce-root.js if necessary.');
+    unknownFiles.forEach((f) => console.error(`   - ${f}`));
+    console.error(
+      '\nPlease move these files to frontend/configs/ or src/, or update scripts/enforce-root.js if necessary.',
+    );
     process.exit(1);
   }
 

@@ -43,7 +43,7 @@ def decode_access_token(token: str) -> Optional[dict[str, Any]]:
 
 
 # Import database module at module level to avoid issues
-from . import database as _database_module
+from . import database as _database_module  # noqa: E402
 
 
 def get_current_active_user(
