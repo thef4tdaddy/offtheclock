@@ -201,10 +201,10 @@ describe('AmazonPresetSection', () => {
       const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
-      const { container } = render(<AmazonPresetSection />);
+      render(<AmazonPresetSection />);
 
       const flexInput = screen.getByPlaceholderText(/10 or 5h22m/i) as HTMLInputElement;
-      
+
       await user.type(flexInput, '5:30');
 
       const submitButton = screen.getByRole('button', { name: /load amazon defaults/i });

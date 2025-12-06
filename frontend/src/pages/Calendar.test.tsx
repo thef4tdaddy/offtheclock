@@ -224,15 +224,12 @@ describe('Calendar', () => {
         year: 'numeric',
       });
 
-      const buttons = screen.getAllByRole('button');
-      const prevButton = buttons.find((btn) => btn.querySelector('svg[class*="lucide"]'));
+      const prevButton = screen.getByRole('button', { name: /previous month/i });
+      await user.click(prevButton);
 
-      if (prevButton) {
-        await user.click(prevButton);
-        await waitFor(() => {
-          expect(screen.getByText(expectedMonthYear)).toBeInTheDocument();
-        });
-      }
+      await waitFor(() => {
+        expect(screen.getByText(expectedMonthYear)).toBeInTheDocument();
+      });
     });
 
     it('navigates to next month', async () => {
@@ -246,16 +243,12 @@ describe('Calendar', () => {
         year: 'numeric',
       });
 
-      const buttons = screen.getAllByRole('button');
-      // Find next button (should be the second navigation button)
-      const nextButton = buttons.filter((btn) => btn.querySelector('svg[class*="lucide"]')).pop();
+      const nextButton = screen.getByRole('button', { name: /next month/i });
+      await user.click(nextButton);
 
-      if (nextButton) {
-        await user.click(nextButton);
-        await waitFor(() => {
-          expect(screen.getByText(expectedMonthYear)).toBeInTheDocument();
-        });
-      }
+      await waitFor(() => {
+        expect(screen.getByText(expectedMonthYear)).toBeInTheDocument();
+      });
     });
   });
 
