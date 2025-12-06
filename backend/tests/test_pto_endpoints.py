@@ -3,7 +3,7 @@ Integration tests for PTO endpoints.
 Tests category retrieval, balance calculation, and logging.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import pytest
 from fastapi.testclient import TestClient
