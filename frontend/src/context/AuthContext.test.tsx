@@ -189,7 +189,7 @@ describe('AuthContext State Persistence', () => {
       unmount();
 
       // Remount - should still be authenticated
-      const { container } = render(
+      render(
         <AuthProvider>
           <TestComponent />
         </AuthProvider>,

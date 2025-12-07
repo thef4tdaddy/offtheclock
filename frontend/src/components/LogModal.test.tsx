@@ -275,7 +275,7 @@ describe('LogModal', () => {
 
     it('allows changing date', async () => {
       const user = userEvent.setup();
-      render(
+      const { container } = render(
         <LogModal
           isOpen={true}
           onClose={mockOnClose}
@@ -291,14 +291,6 @@ describe('LogModal', () => {
 
       if (!dateInput) {
         // Try finding by type attribute directly
-        const { container } = render(
-          <LogModal
-            isOpen={true}
-            onClose={mockOnClose}
-            onSuccess={mockOnSuccess}
-            categories={mockCategories}
-          />,
-        );
         const dateInputAlt = container.querySelector('input[type="date"]') as HTMLInputElement;
         if (dateInputAlt) {
           await user.clear(dateInputAlt);
