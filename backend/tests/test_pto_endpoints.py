@@ -700,7 +700,7 @@ class TestCalculateBalanceEdgeCases:
         db.refresh(category)
 
         # Day 13 - should not accrue yet
-        target_date = datetime(2024, 1, 14)  # Day 14 from Jan 1
+        target_date = datetime(2024, 1, 14)  # 13 days since start date
         balance = calculate_balance(category, target_date)
         assert balance == 0.0, "Should not accrue before completing 14 days"
 
