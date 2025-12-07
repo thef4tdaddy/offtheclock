@@ -124,3 +124,16 @@ def auth_headers(client: TestClient, test_user: User) -> dict[str, str]:
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
+
+
+@pytest.fixture(scope="function")
+def admin_headers(client: TestClient, admin_user: User) -> dict[str, str]:
+    """
+    Get authentication headers for the admin user.
+    """
+    response = client.post(
+        "/api/auth/token",
+        data={"username": admin_user.email, "password": "adminpassword123"},
+    )
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
