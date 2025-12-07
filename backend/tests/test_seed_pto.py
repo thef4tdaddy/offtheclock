@@ -9,6 +9,7 @@ import pytest
 from sqlalchemy.orm import Session
 
 from app.models import AccrualFrequency, PTOCategory, User
+from app.seed_pto import seed_pto_categories
 
 
 @pytest.mark.db
