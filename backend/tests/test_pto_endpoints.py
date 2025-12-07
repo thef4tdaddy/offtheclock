@@ -704,8 +704,8 @@ class TestCalculateBalanceEdgeCases:
         balance = calculate_balance(category, target_date)
         assert balance == 0.0, "Should not accrue before completing 14 days"
 
-        # Day 14 exactly (15th from Jan 1)
-        target_date = datetime(2024, 1, 15)  # Day 15 from Jan 1, 14 days since start
+        # Day 14 exactly (14 days after start date)
+        target_date = datetime(2024, 1, 15)  # 14 days after start date (Jan 1)
         balance = calculate_balance(category, target_date)
         assert balance == 3.0, "Should accrue after 14 complete days"
 
