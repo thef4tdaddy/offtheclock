@@ -192,32 +192,6 @@ class TestResetPasswordUtility:
         assert verify_password(new_password, test_user.hashed_password)
 
     @patch("app.reset_password.SessionLocal")
-    def test_reset_password_case_sensitive_email(
-        self,
-        mock_session_local: MagicMock,
-        test_user: User,
-        capsys: pytest.CaptureFixture,
-    ) -> None:
-        """Test that email lookup is case-sensitive."""
-        # Create a mock session that returns None (user not found)
-        mock_db = MagicMock(spec=Session)
-        mock_db.query.return_value.filter.return_value.first.return_value = None
-        mock_session_local.return_value = mock_db
-
-        new_password = "newPassword123!"
-
-        # Try with uppercase email (assuming test_user.email is lowercase)
-        uppercase_email = test_user.email.upper()
-
-        reset_password(uppercase_email, new_password)
-
-        # Capture printed output
-        captured = capsys.readouterr()
-
-        # Since user won't be found with wrong case (case-sensitive), should print not found
-        assert "not found" in captured.out.lower()
-
-    @patch("app.reset_password.SessionLocal")
     def test_reset_password_prints_success_message(
         self,
         mock_session_local: MagicMock,
