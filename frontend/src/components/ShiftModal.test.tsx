@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '../test/test-utils';
+import { render, screen, waitFor, cleanup } from '../test/test-utils';
 import userEvent from '@testing-library/user-event';
 import ShiftModal from './ShiftModal';
 import * as useShiftsModule from '../hooks/api/useShifts';
@@ -215,6 +215,7 @@ describe('ShiftModal', () => {
     });
 
     it('uses default days from user preferences', () => {
+      cleanup();
       render(
         <ShiftModal
           isOpen={true}
@@ -231,6 +232,7 @@ describe('ShiftModal', () => {
     });
 
     it('submits batch shifts with selected days', async () => {
+      cleanup();
       const user = userEvent.setup();
       render(<ShiftModal isOpen={true} onClose={mockOnClose} initialMode="recurring" />);
 
@@ -252,6 +254,7 @@ describe('ShiftModal', () => {
     });
 
     it('shows alert when no days are selected', async () => {
+      cleanup();
       const user = userEvent.setup();
       const alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
@@ -276,6 +279,7 @@ describe('ShiftModal', () => {
     });
 
     it('shows loading state during batch submission', () => {
+      cleanup();
       vi.mocked(useShiftsModule.useCreateBatchShiftsMutation).mockReturnValue({
         mutate: mockCreateBatch,
         isPending: true,
